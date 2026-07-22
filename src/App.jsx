@@ -87,16 +87,19 @@ export default function App() {
   useEffect(() => {
     const fetchSqlData = async () => {
       const kb = await getKnowledgeItems();
-      if (kb && Array.isArray(kb)) setKnowledgeItems(kb);
+      if (kb && Array.isArray(kb) && kb.length > 0) setKnowledgeItems(kb);
+      else setKnowledgeItems(INITIAL_KNOWLEDGE_BASE);
 
       const inv = await getInventoryItems();
-      if (inv && Array.isArray(inv)) setInventoryItems(inv);
+      if (inv && Array.isArray(inv) && inv.length > 0) setInventoryItems(inv);
+      else setInventoryItems(INITIAL_INVENTORY);
 
       const logs = await getAuditLogs();
-      if (logs && Array.isArray(logs)) setAuditLogs(logs);
+      if (logs && Array.isArray(logs) && logs.length > 0) setAuditLogs(logs);
+      else setAuditLogs(INITIAL_AUDIT_LOGS);
 
       const fins = await getFinancials();
-      if (fins && Array.isArray(fins)) {
+      if (fins && Array.isArray(fins) && fins.length > 0) {
         let rev = 0;
         let exp = 0;
         fins.forEach(t => {
@@ -104,20 +107,26 @@ export default function App() {
           else exp += Number(t.amount || 0);
         });
         setFinancials({
-          totalBudget: 0,
+          totalBudget: 500000,
           currency: '₱',
           summary: {
             totalRevenue: rev,
             totalExpenses: exp,
             netProfit: rev - exp,
-            projectedHarvestValue: 0
+            projectedHarvestValue: 350000
           },
           transactions: fins
         });
+      } else {
+        setFinancials(INITIAL_FINANCIALS);
       }
 
       const mon = await getMonitoringEntries();
-      if (mon && mon.fields) setMonitoringData(mon);
+      if (mon && mon.fields && (mon.fields.length > 0 || mon.equipment?.length > 0 || mon.livestock?.length > 0)) {
+        setMonitoringData(mon);
+      } else {
+        setMonitoringData(INITIAL_MONITORING_SENSORS);
+      }
     };
 
     fetchSqlData();

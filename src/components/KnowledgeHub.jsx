@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   BookOpen, Wrench, Sprout, Volume2, Plus, 
-  Leaf, ChevronRight, Lock, Edit3, Trash2, X, Check
+  Leaf, Feather, ChevronRight, Lock, Edit3, Trash2, X, Check
 } from 'lucide-react';
 import MediaInput from './MediaInput';
 import MediaDisplay from './MediaDisplay';
@@ -30,6 +30,16 @@ export default function KnowledgeHub({
   const [formSeason, setFormSeason] = useState('Year-Round');
   const [formMediaUrl, setFormMediaUrl] = useState('');
   const [formMediaType, setFormMediaType] = useState('image');
+
+  const getCategoryLabel = (cat) => {
+    switch (cat) {
+      case 'tech': return 'Technologies & Tools';
+      case 'knowledge': return 'Farming Techniques';
+      case 'crops': return 'Crops';
+      case 'livestock': return 'Livestock';
+      default: return cat;
+    }
+  };
 
   const filteredItems = knowledgeItems.filter(item => {
     const matchesCategory = activeCategory === 'all' || item.category === activeCategory;
@@ -167,7 +177,19 @@ export default function KnowledgeHub({
             }`}
           >
             <Leaf className="w-4 h-4" />
-            <span>Crops & Livestock</span>
+            <span>Crops</span>
+          </button>
+
+          <button
+            onClick={() => setActiveCategory('livestock')}
+            className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center space-x-2 cursor-pointer ${
+              activeCategory === 'livestock'
+                ? 'bg-indigo-600 text-white shadow-md'
+                : 'bg-indigo-50 text-indigo-800 hover:bg-indigo-100'
+            }`}
+          >
+            <Feather className="w-4 h-4" />
+            <span>Livestock</span>
           </button>
         </div>
 
@@ -219,7 +241,7 @@ export default function KnowledgeHub({
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent pointer-events-none"></div>
 
                   <span className="absolute top-3 left-3 bg-slate-900/90 backdrop-blur-md text-emerald-300 border border-emerald-500/40 text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider z-10">
-                    {item.category}
+                    {getCategoryLabel(item.category)}
                   </span>
 
                   <div className="absolute top-3 right-3 flex items-center space-x-1.5 z-10">
@@ -299,7 +321,7 @@ export default function KnowledgeHub({
 
               <div className="absolute bottom-4 left-6 right-6 text-white pointer-events-none">
                 <span className="bg-purple-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider inline-block mb-2">
-                  {selectedItem.category} Guide
+                  {getCategoryLabel(selectedItem.category)} Guide
                 </span>
                 <h2 className="text-xl sm:text-2xl font-black">{selectedItem.title}</h2>
               </div>
@@ -410,7 +432,8 @@ export default function KnowledgeHub({
                 >
                   <option value="tech">Technologies & Tools</option>
                   <option value="knowledge">Farming Techniques</option>
-                  <option value="crops">Crops & Livestock</option>
+                  <option value="crops">Crops</option>
+                  <option value="livestock">Livestock</option>
                 </select>
               </div>
 
