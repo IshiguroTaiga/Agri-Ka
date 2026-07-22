@@ -185,7 +185,40 @@ export default function App() {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 0.95;
+
+      const voices = window.speechSynthesis.getVoices();
+      
+      // Look for a Japanese female voice (e.g. Nanami, Haruka, Kyoko, Mizuki, Google 日本語)
+      const jpFemaleVoice = voices.find(v => 
+        v.lang.toLowerCase().includes('ja') || 
+        v.name.toLowerCase().includes('japan') || 
+        v.name.toLowerCase().includes('nanami') || 
+        v.name.toLowerCase().includes('haruka') || 
+        v.name.toLowerCase().includes('kyoko') || 
+        v.name.toLowerCase().includes('mizuki') || 
+        v.name.toLowerCase().includes('日本語')
+      );
+
+      // Fallback female voice if JP voice is not installed on OS/browser
+      const femaleVoice = voices.find(v => 
+        v.name.toLowerCase().includes('female') || 
+        v.name.toLowerCase().includes('zira') || 
+        v.name.toLowerCase().includes('jenny') || 
+        v.name.toLowerCase().includes('aria') || 
+        v.name.toLowerCase().includes('samantha') || 
+        v.name.toLowerCase().includes('victoria')
+      );
+
+      if (jpFemaleVoice) {
+        utterance.voice = jpFemaleVoice;
+      } else if (femaleVoice) {
+        utterance.voice = femaleVoice;
+      }
+
+      // High pitch (1.38) + energetic rate (1.05) for a cute, girlish tone
+      utterance.pitch = 1.38;
+      utterance.rate = 1.05;
+
       window.speechSynthesis.speak(utterance);
     } else {
       alert('Speech synthesis is not supported on this browser.');
