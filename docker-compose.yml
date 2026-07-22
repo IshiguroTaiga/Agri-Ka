@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  agri_ka_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: agri_ka_app
+    ports:
+      - "7777:7777"
+    restart: always
