@@ -181,37 +181,71 @@ export default function App() {
     }
   };
 
+  const [availableVoices, setAvailableVoices] = useState([]);
+
+  // Preload system voices to prevent fallback to default male voice (Microsoft David)
+  useEffect(() => {
+    if ('speechSynthesis' in window) {
+      const loadVoices = () => {
+        const list = window.speechSynthesis.getVoices();
+        if (list && list.length > 0) {
+          setAvailableVoices(list);
+        }
+      };
+      loadVoices();
+      window.speechSynthesis.onvoiceschanged = loadVoices;
+    }
+  }, []);
+
   const handleSpeakText = (text) => {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
 
-      const voices = window.speechSynthesis.getVoices();
-      
-      // Select Japanese English voice or smooth female voice (e.g. Nanami, Jenny, Aria, Zira, Google)
-      const selectedVoice = voices.find(v => 
+      const voices = availableVoices.length > 0 ? availableVoices : window.speechSynthesis.getVoices();
+
+      // Exclude male voice names explicitly
+      const nonMaleVoices = voices.filter(v => {
+        const name = v.name.toLowerCase();
+        return !(
+          name.includes('david') || 
+          name.includes('mark') || 
+          name.includes('george') || 
+          name.includes('richard') || 
+          name.includes('james') || 
+          name.includes('guy') || 
+          name.includes('otoya') ||
+          (name.includes('male') && !name.includes('female'))
+        );
+      });
+
+      // Priority 1: Japanese female voices (Nanami, Haruka, Kyoko, Mizuki, Ayumi)
+      // Priority 2: Smooth English female voices (Jenny, Aria, Zira, Samantha, Victoria)
+      const selectedVoice = nonMaleVoices.find(v => 
         v.name.toLowerCase().includes('nanami') ||
         v.name.toLowerCase().includes('haruka') ||
+        v.name.toLowerCase().includes('kyoko') ||
+        v.name.toLowerCase().includes('mizuki') ||
+        v.name.toLowerCase().includes('ayumi') ||
         v.name.toLowerCase().includes('jenny') ||
         v.name.toLowerCase().includes('aria') ||
-        v.name.toLowerCase().includes('google us english') ||
-        v.name.toLowerCase().includes('natural')
-      ) || voices.find(v => 
-        v.lang.toLowerCase().includes('ja') ||
         v.name.toLowerCase().includes('zira') ||
         v.name.toLowerCase().includes('samantha') ||
-        v.name.toLowerCase().includes('female')
-      );
+        v.name.toLowerCase().includes('victoria') ||
+        v.name.toLowerCase().includes('google us english')
+      ) || nonMaleVoices.find(v => v.lang.toLowerCase().includes('ja'))
+        || nonMaleVoices[0] 
+        || voices[0];
 
       if (selectedVoice) {
         utterance.voice = selectedVoice;
       }
 
-      // Force English pronunciation so English words are clear and not Katakana-glitched
+      // Ensure English text is pronounced clearly
       utterance.lang = 'en-US';
 
-      // Gentle, pleasant, sweet pitch (1.15) and smooth rate (0.98)
-      utterance.pitch = 1.15;
+      // Pitch (1.18) & Rate (0.98) for sweet, cheerful female voice
+      utterance.pitch = 1.18;
       utterance.rate = 0.98;
 
       window.speechSynthesis.speak(utterance);
