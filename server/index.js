@@ -15,6 +15,11 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 // Initialize Database
 initDb();
 
+// Health check & Root Endpoints
+app.get(['/', '/healthz', '/api'], (req, res) => {
+  res.json({ status: 'ok', service: 'AGRI-KA Express Backend API', time: new Date().toISOString() });
+});
+
 // --- AUTHENTICATION ENDPOINTS ---
 
 // Register New User into SQL Database
