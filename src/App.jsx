@@ -188,36 +188,31 @@ export default function App() {
 
       const voices = window.speechSynthesis.getVoices();
       
-      // Look for a Japanese female voice (e.g. Nanami, Haruka, Kyoko, Mizuki, Google 日本語)
-      const jpFemaleVoice = voices.find(v => 
-        v.lang.toLowerCase().includes('ja') || 
-        v.name.toLowerCase().includes('japan') || 
-        v.name.toLowerCase().includes('nanami') || 
-        v.name.toLowerCase().includes('haruka') || 
-        v.name.toLowerCase().includes('kyoko') || 
-        v.name.toLowerCase().includes('mizuki') || 
-        v.name.toLowerCase().includes('日本語')
+      // Select Japanese English voice or smooth female voice (e.g. Nanami, Jenny, Aria, Zira, Google)
+      const selectedVoice = voices.find(v => 
+        v.name.toLowerCase().includes('nanami') ||
+        v.name.toLowerCase().includes('haruka') ||
+        v.name.toLowerCase().includes('jenny') ||
+        v.name.toLowerCase().includes('aria') ||
+        v.name.toLowerCase().includes('google us english') ||
+        v.name.toLowerCase().includes('natural')
+      ) || voices.find(v => 
+        v.lang.toLowerCase().includes('ja') ||
+        v.name.toLowerCase().includes('zira') ||
+        v.name.toLowerCase().includes('samantha') ||
+        v.name.toLowerCase().includes('female')
       );
 
-      // Fallback female voice if JP voice is not installed on OS/browser
-      const femaleVoice = voices.find(v => 
-        v.name.toLowerCase().includes('female') || 
-        v.name.toLowerCase().includes('zira') || 
-        v.name.toLowerCase().includes('jenny') || 
-        v.name.toLowerCase().includes('aria') || 
-        v.name.toLowerCase().includes('samantha') || 
-        v.name.toLowerCase().includes('victoria')
-      );
-
-      if (jpFemaleVoice) {
-        utterance.voice = jpFemaleVoice;
-      } else if (femaleVoice) {
-        utterance.voice = femaleVoice;
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
       }
 
-      // High pitch (1.38) + energetic rate (1.05) for a cute, girlish tone
-      utterance.pitch = 1.38;
-      utterance.rate = 1.05;
+      // Force English pronunciation so English words are clear and not Katakana-glitched
+      utterance.lang = 'en-US';
+
+      // Gentle, pleasant, sweet pitch (1.15) and smooth rate (0.98)
+      utterance.pitch = 1.15;
+      utterance.rate = 0.98;
 
       window.speechSynthesis.speak(utterance);
     } else {
