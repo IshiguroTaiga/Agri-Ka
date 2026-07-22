@@ -461,15 +461,24 @@ app.put('/api/monitoring/:id', async (req, res) => {
   }
 });
 
-app.delete('/api/monitoring/:id', async (req, res) => {
-  try {
-    await runQuery('DELETE FROM monitoring_entries WHERE id = ?', [req.params.id]);
-    res.json({ message: 'Monitoring entry deleted from SQL DB' });
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to delete monitoring entry' });
-  }
-});
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const distPath = path.join(__dirname, '../dist');
+
+if (fs.existsSync(distPath)) {
+  console.log(`[Express Server] Serving static production build from: ${distPath}`);
+  app.use(express.static(distPath));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) return next();
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+}
 
 app.listen(PORT, () => {
   console.log(`🚀 AGRI-PULSE Express SQL Server active on http://localhost:${PORT}`);
 });
+
