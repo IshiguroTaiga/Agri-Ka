@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   ClipboardList, Package, DollarSign, Plus, CheckCircle, 
-  Search, RefreshCw, Lock, Edit3, Trash2, X, Check, Eye
+  Search, RefreshCw, Lock, Edit3, Trash2, X, Check, Eye, EyeOff
 } from 'lucide-react';
 import MediaInput from './MediaInput';
 import MediaDisplay from './MediaDisplay';
@@ -15,16 +15,21 @@ export default function RecordInventory({
   onAddTransaction,
   onUpdateTransaction,
   onDeleteTransaction,
+  onToggleHideFinancial,
   onAddInventoryItem,
   onUpdateInventoryItem,
   onDeleteInventoryItem,
+  onToggleHideInventoryItem,
   onUpdateAuditLog,
   onDeleteAuditLog,
+  onToggleHideAuditLog,
   onToggleEquipmentStatus,
   onOpenLoginModal
 }) {
   const [subTab, setSubTab] = useState('logs'); // 'logs', 'inventory', 'financials'
   const [inventorySearch, setInventorySearch] = useState('');
+
+  const isSuperAdmin = activeUser?.roleCode === 'super_admin' || activeUser?.role === 'Super Admin' || activeUser?.username?.toLowerCase() === 'ishi';
 
   // Modals state
   const [showFinModal, setShowFinModal] = useState(false);
@@ -70,10 +75,13 @@ export default function RecordInventory({
 
   const isGuest = activeUser?.isGuest;
 
-  const filteredInventory = inventoryItems.filter(item => {
+  const displayLogs = auditLogs.filter(log => isSuperAdmin || !log.isHidden);
+  const displayInventory = inventoryItems.filter(item => {
+    if (item.isHidden && !isSuperAdmin) return false;
     return item.name.toLowerCase().includes(inventorySearch.toLowerCase()) ||
            (item.code && item.code.toLowerCase().includes(inventorySearch.toLowerCase()));
   });
+  const displayFinancials = financials.transactions.filter(t => isSuperAdmin || !t.isHidden);
 
   const handleOpenAddLog = () => {
     if (isGuest) onOpenLoginModal();
@@ -119,7 +127,8 @@ export default function RecordInventory({
       category: finCategory,
       loggedBy: activeUser.name,
       mediaUrl: finMediaUrl,
-      mediaType: finMediaType
+      mediaType: finMediaType,
+      isHidden: editingFin ? editingFin.isHidden : false
     };
 
     if (editingFin) {
@@ -189,7 +198,8 @@ export default function RecordInventory({
       unit: invUnit,
       notes: invNotes,
       mediaUrl: invMediaUrl,
-      mediaType: invMediaType
+      mediaType: invMediaType,
+      isHidden: editingInv ? editingInv.isHidden : false
     };
 
     if (editingInv) {
@@ -230,9 +240,9 @@ export default function RecordInventory({
 
   const handleLogEditSubmit = (e) => {
     e.preventDefault();
-    if (!editingLog) return;
+    if (!editingLog || !logItemTagged) return;
 
-    const payload = {
+    const updatedLog = {
       ...editingLog,
       actionType: logActionType,
       itemTagged: logItemTagged,
@@ -244,8 +254,9 @@ export default function RecordInventory({
       mediaType: logMediaType
     };
 
-    onUpdateAuditLog(payload);
+    onUpdateAuditLog(updatedLog);
     setShowLogEditModal(false);
+    setEditingLog(null);
   };
 
   const handleDeleteLog = (id) => {
@@ -272,7 +283,7 @@ export default function RecordInventory({
             }`}
           >
             <ClipboardList className="w-4 h-4" />
-            <span>Activity Logs ({auditLogs.length})</span>
+            <span>Activity Logs ({displayLogs.length})</span>
           </button>
 
           <button
@@ -284,7 +295,7 @@ export default function RecordInventory({
             }`}
           >
             <Package className="w-4 h-4" />
-            <span>Tools & Inventory ({inventoryItems.length})</span>
+            <span>Tools & Inventory ({displayInventory.length})</span>
           </button>
 
           <button
@@ -342,7 +353,7 @@ export default function RecordInventory({
       {/* SUB-TAB 1: ACTIVITY LOGS */}
       {subTab === 'logs' && (
         <div className="space-y-4">
-          {auditLogs.length === 0 ? (
+          {displayLogs.length === 0 ? (
             <div className="bg-white rounded-3xl p-12 text-center border border-purple-100 shadow-sm space-y-4 max-w-xl mx-auto my-8">
               <div className="w-16 h-16 rounded-full bg-purple-50 border border-purple-200 text-purple-600 flex items-center justify-center mx-auto text-2xl font-bold">
                 📋
@@ -378,8 +389,8 @@ export default function RecordInventory({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {auditLogs.map(log => (
-                      <tr key={log.id} className="hover:bg-purple-50/40 transition-colors">
+                    {displayLogs.map(log => (
+                      <tr key={log.id} className={`hover:bg-purple-50/40 transition-colors ${log.isHidden ? 'bg-amber-50/30' : ''}`}>
                         <td className="p-4 w-20">
                           {log.mediaUrl ? (
                             <button
@@ -398,7 +409,14 @@ export default function RecordInventory({
                           )}
                         </td>
                         <td className="p-4">
-                          <div className="font-bold text-slate-900">{log.user}</div>
+                          <div className="flex items-center gap-1.5 font-bold text-slate-900">
+                            <span>{log.user}</span>
+                            {log.isHidden && isSuperAdmin && (
+                              <span className="bg-amber-950 text-amber-300 border border-amber-400/60 text-[9px] font-black px-1.5 py-0.5 rounded flex items-center gap-0.5">
+                                <EyeOff className="w-3 h-3 text-amber-400" /> Hidden
+                              </span>
+                            )}
+                          </div>
                           <div className="text-[10px] text-slate-400">{log.timestamp}</div>
                         </td>
                         <td className="p-4">
@@ -409,7 +427,7 @@ export default function RecordInventory({
                         <td className="p-4 font-bold text-slate-900">{log.itemTagged}</td>
                         <td className="p-4 text-slate-700">{log.location}</td>
                         <td className="p-4 font-semibold text-slate-800">{log.quantityDetails}</td>
-                        <td className="p-4 text-right space-x-2">
+                        <td className="p-4 text-right space-x-1.5">
                           {!isGuest && (
                             <>
                               <button
@@ -428,6 +446,17 @@ export default function RecordInventory({
                               </button>
                             </>
                           )}
+                          {isSuperAdmin && (
+                            <button
+                              onClick={() => onToggleHideAuditLog && onToggleHideAuditLog(log.id, !log.isHidden)}
+                              className={`p-1.5 rounded-lg cursor-pointer transition-all ${
+                                log.isHidden ? 'bg-amber-900 text-amber-300 hover:bg-amber-800' : 'text-slate-500 hover:bg-slate-200'
+                              }`}
+                              title={log.isHidden ? "Unhide Log" : "Hide Log"}
+                            >
+                              {log.isHidden ? <Eye className="w-4 h-4 text-amber-300" /> : <EyeOff className="w-4 h-4" />}
+                            </button>
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -442,7 +471,7 @@ export default function RecordInventory({
       {/* SUB-TAB 2: TOOLS & EQUIPMENT INVENTORY */}
       {subTab === 'inventory' && (
         <div className="space-y-4">
-          {inventoryItems.length === 0 ? (
+          {displayInventory.length === 0 ? (
             <div className="bg-white rounded-3xl p-12 text-center border border-emerald-100 shadow-sm space-y-4 max-w-xl mx-auto my-8">
               <div className="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center mx-auto text-2xl font-bold">
                 📦
@@ -461,8 +490,8 @@ export default function RecordInventory({
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-5">
-              {filteredInventory.map(item => (
-                <div key={item.id} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col justify-between group">
+              {displayInventory.map(item => (
+                <div key={item.id} className={`bg-white rounded-2xl border shadow-sm overflow-hidden flex flex-col justify-between group ${item.isHidden ? 'border-amber-400/80 bg-amber-50/20 ring-2 ring-amber-400/30' : 'border-slate-200'}`}>
                   <div>
                     {item.mediaUrl && (
                       <div className="relative h-40 bg-slate-900 overflow-hidden">
@@ -472,7 +501,14 @@ export default function RecordInventory({
                     <div className="p-5 space-y-3">
                       <div className="flex justify-between items-start">
                         <div>
-                          <span className="text-[10px] font-bold uppercase text-slate-400">{item.code}</span>
+                          <div className="flex items-center gap-1">
+                            <span className="text-[10px] font-bold uppercase text-slate-400">{item.code}</span>
+                            {item.isHidden && isSuperAdmin && (
+                              <span className="bg-amber-950 text-amber-300 border border-amber-400/60 text-[9px] font-black px-1.5 py-0.5 rounded flex items-center gap-0.5">
+                                <EyeOff className="w-3 h-3 text-amber-400" /> Hidden
+                              </span>
+                            )}
+                          </div>
                           <h3 className="font-bold text-slate-900 text-base">{item.name}</h3>
                         </div>
                         <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
@@ -503,24 +539,37 @@ export default function RecordInventory({
                       <span>Toggle Status</span>
                     </button>
 
-                    {!isGuest && (
-                      <div className="flex items-center space-x-1">
+                    <div className="flex items-center space-x-1">
+                      {!isGuest && (
+                        <>
+                          <button
+                            onClick={() => handleOpenInvModal(item)}
+                            className="p-1.5 text-emerald-700 hover:bg-emerald-100 rounded-lg cursor-pointer"
+                            title="Edit Equipment"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteInv(item.id)}
+                            className="p-1.5 text-red-600 hover:bg-red-100 rounded-lg cursor-pointer"
+                            title="Delete Equipment"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </>
+                      )}
+                      {isSuperAdmin && (
                         <button
-                          onClick={() => handleOpenInvModal(item)}
-                          className="p-1.5 text-emerald-700 hover:bg-emerald-100 rounded-lg cursor-pointer"
-                          title="Edit Equipment"
+                          onClick={() => onToggleHideInventoryItem && onToggleHideInventoryItem(item.id, !item.isHidden)}
+                          className={`p-1.5 rounded-lg cursor-pointer transition-all ${
+                            item.isHidden ? 'bg-amber-900 text-amber-300 hover:bg-amber-800' : 'text-slate-500 hover:bg-slate-200'
+                          }`}
+                          title={item.isHidden ? "Unhide Equipment" : "Hide Equipment"}
                         >
-                          <Edit3 className="w-4 h-4" />
+                          {item.isHidden ? <Eye className="w-4 h-4 text-amber-300" /> : <EyeOff className="w-4 h-4" />}
                         </button>
-                        <button
-                          onClick={() => handleDeleteInv(item.id)}
-                          className="p-1.5 text-red-600 hover:bg-red-100 rounded-lg cursor-pointer"
-                          title="Delete Equipment"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -564,7 +613,7 @@ export default function RecordInventory({
               </button>
             </div>
 
-            {financials.transactions.length === 0 ? (
+            {displayFinancials.length === 0 ? (
               <div className="p-8 text-center text-xs text-slate-400">
                 No financial transactions logged yet in database.
               </div>
@@ -582,8 +631,8 @@ export default function RecordInventory({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {financials.transactions.map(t => (
-                      <tr key={t.id}>
+                    {displayFinancials.map(t => (
+                      <tr key={t.id} className={t.isHidden ? 'bg-amber-50/30' : ''}>
                         <td className="p-3.5 w-16">
                           {t.mediaUrl ? (
                             <button
@@ -597,7 +646,16 @@ export default function RecordInventory({
                           )}
                         </td>
                         <td className="p-3.5">{t.date}</td>
-                        <td className="p-3.5 font-bold">{t.title}</td>
+                        <td className="p-3.5 font-bold">
+                          <div className="flex items-center gap-1.5">
+                            <span>{t.title}</span>
+                            {t.isHidden && isSuperAdmin && (
+                              <span className="bg-amber-950 text-amber-300 border border-amber-400/60 text-[9px] font-black px-1.5 py-0.5 rounded flex items-center gap-0.5">
+                                <EyeOff className="w-3 h-3 text-amber-400" /> Hidden
+                              </span>
+                            )}
+                          </div>
+                        </td>
                         <td className="p-3.5">
                           <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${t.type === 'Income' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`}>
                             {t.type}
@@ -606,7 +664,7 @@ export default function RecordInventory({
                         <td className={`p-3.5 font-bold ${t.type === 'Income' ? 'text-emerald-600' : 'text-red-600'}`}>
                           ₱{t.amount.toLocaleString()}
                         </td>
-                        <td className="p-3.5 text-right space-x-2">
+                        <td className="p-3.5 text-right space-x-1.5">
                           {!isGuest && (
                             <>
                               <button
@@ -624,6 +682,17 @@ export default function RecordInventory({
                                 <Trash2 className="w-4 h-4" />
                               </button>
                             </>
+                          )}
+                          {isSuperAdmin && (
+                            <button
+                              onClick={() => onToggleHideFinancial && onToggleHideFinancial(t.id, !t.isHidden)}
+                              className={`p-1.5 rounded-lg cursor-pointer transition-all ${
+                                t.isHidden ? 'bg-amber-900 text-amber-300 hover:bg-amber-800' : 'text-slate-500 hover:bg-slate-200'
+                              }`}
+                              title={t.isHidden ? "Unhide Financial Record" : "Hide Financial Record"}
+                            >
+                              {t.isHidden ? <Eye className="w-4 h-4 text-amber-300" /> : <EyeOff className="w-4 h-4" />}
+                            </button>
                           )}
                         </td>
                       </tr>

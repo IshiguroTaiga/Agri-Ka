@@ -18,12 +18,12 @@ import {
   INITIAL_MONITORING_SENSORS 
 } from './data/initialData';
 
-import {
-  getKnowledgeItems, createKnowledgeItem, updateKnowledgeItem, deleteKnowledgeItem,
-  getInventoryItems, createInventoryItem, updateInventoryItem, deleteInventoryItem,
-  getAuditLogs, createAuditLog, updateAuditLog, deleteAuditLog,
-  getFinancials, createFinancial, updateFinancial, deleteFinancial,
-  getMonitoringEntries, createMonitoringEntry, updateMonitoringEntry, deleteMonitoringEntry
+import { 
+  getKnowledgeItems, createKnowledgeItem, updateKnowledgeItem, toggleHideKnowledgeItem, deleteKnowledgeItem,
+  getInventoryItems, createInventoryItem, updateInventoryItem, toggleHideInventoryItem, deleteInventoryItem,
+  getAuditLogs, createAuditLog, updateAuditLog, toggleHideAuditLog, deleteAuditLog,
+  getFinancials, createFinancial, updateFinancial, toggleHideFinancial, deleteFinancial,
+  getMonitoringEntries, createMonitoringEntry, updateMonitoringEntry, toggleHideMonitoringEntry, deleteMonitoringEntry
 } from './data/api';
 
 export default function App() {
@@ -83,53 +83,71 @@ export default function App() {
   const [isQuickLogOpen, setIsQuickLogOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
-  // Fetch initial data from SQL Database
+  // Fetch initial data from SQL Database & helper
+  const fetchSqlData = async () => {
+    const kb = await getKnowledgeItems();
+    if (kb && Array.isArray(kb) && kb.length > 0) setKnowledgeItems(kb);
+    else setKnowledgeItems(INITIAL_KNOWLEDGE_BASE);
+
+    const inv = await getInventoryItems();
+    if (inv && Array.isArray(inv) && inv.length > 0) setInventoryItems(inv);
+    else setInventoryItems(INITIAL_INVENTORY);
+
+    const logs = await getAuditLogs();
+    if (logs && Array.isArray(logs) && logs.length > 0) setAuditLogs(logs);
+    else setAuditLogs(INITIAL_AUDIT_LOGS);
+
+    const fins = await getFinancials();
+    if (fins && Array.isArray(fins) && fins.length > 0) {
+      let rev = 0;
+      let exp = 0;
+      fins.forEach(t => {
+        if (t.type === 'Income') rev += Number(t.amount || 0);
+        else exp += Number(t.amount || 0);
+      });
+      setFinancials({
+        totalBudget: 500000,
+        currency: '₱',
+        summary: {
+          totalRevenue: rev,
+          totalExpenses: exp,
+          netProfit: rev - exp,
+          projectedHarvestValue: 350000
+        },
+        transactions: fins
+      });
+    } else {
+      setFinancials(INITIAL_FINANCIALS);
+    }
+
+    const mon = await getMonitoringEntries();
+    if (mon && mon.fields && (mon.fields.length > 0 || mon.equipment?.length > 0 || mon.livestock?.length > 0)) {
+      setMonitoringData(mon);
+    } else {
+      setMonitoringData(INITIAL_MONITORING_SENSORS);
+    }
+  };
+
   useEffect(() => {
-    const fetchSqlData = async () => {
-      const kb = await getKnowledgeItems();
-      if (kb && Array.isArray(kb) && kb.length > 0) setKnowledgeItems(kb);
-      else setKnowledgeItems(INITIAL_KNOWLEDGE_BASE);
-
-      const inv = await getInventoryItems();
-      if (inv && Array.isArray(inv) && inv.length > 0) setInventoryItems(inv);
-      else setInventoryItems(INITIAL_INVENTORY);
-
-      const logs = await getAuditLogs();
-      if (logs && Array.isArray(logs) && logs.length > 0) setAuditLogs(logs);
-      else setAuditLogs(INITIAL_AUDIT_LOGS);
-
-      const fins = await getFinancials();
-      if (fins && Array.isArray(fins) && fins.length > 0) {
-        let rev = 0;
-        let exp = 0;
-        fins.forEach(t => {
-          if (t.type === 'Income') rev += Number(t.amount || 0);
-          else exp += Number(t.amount || 0);
-        });
-        setFinancials({
-          totalBudget: 500000,
-          currency: '₱',
-          summary: {
-            totalRevenue: rev,
-            totalExpenses: exp,
-            netProfit: rev - exp,
-            projectedHarvestValue: 350000
-          },
-          transactions: fins
-        });
-      } else {
-        setFinancials(INITIAL_FINANCIALS);
-      }
-
-      const mon = await getMonitoringEntries();
-      if (mon && mon.fields && (mon.fields.length > 0 || mon.equipment?.length > 0 || mon.livestock?.length > 0)) {
-        setMonitoringData(mon);
-      } else {
-        setMonitoringData(INITIAL_MONITORING_SENSORS);
-      }
-    };
-
     fetchSqlData();
+  }, []);
+
+  // Real-time EventSource Listener (SSE) for instant cross-tab / cross-user updates
+  useEffect(() => {
+    let eventSource;
+    try {
+      eventSource = new EventSource('/api/events');
+      eventSource.onmessage = (e) => {
+        console.log('[Real-Time SSE] Received server change event:', e.data);
+        fetchSqlData();
+      };
+    } catch (err) {
+      console.warn('[Real-Time SSE warning] Could not establish EventSource connection:', err);
+    }
+
+    return () => {
+      if (eventSource) eventSource.close();
+    };
   }, []);
 
   // Safe localStorage helper to prevent QuotaExceededError when uploading images/media
@@ -262,7 +280,7 @@ export default function App() {
     }
   };
 
-  // --- KNOWLEDGE HUB CRUD ---
+  // --- KNOWLEDGE HUB CRUD & HIDE ---
   const handleAddGuide = async (newGuide) => {
     setKnowledgeItems([newGuide, ...knowledgeItems]);
     await createKnowledgeItem(newGuide);
@@ -273,12 +291,17 @@ export default function App() {
     await updateKnowledgeItem(updatedGuide.id, updatedGuide);
   };
 
+  const handleToggleHideGuide = async (id, isHidden) => {
+    setKnowledgeItems(knowledgeItems.map(item => item.id === id ? { ...item, isHidden } : item));
+    await toggleHideKnowledgeItem(id, isHidden);
+  };
+
   const handleDeleteGuide = async (id) => {
     setKnowledgeItems(knowledgeItems.filter(item => item.id !== id));
     await deleteKnowledgeItem(id);
   };
 
-  // --- RECORD & INVENTORY CRUD ---
+  // --- RECORD & INVENTORY CRUD & HIDE ---
   const handleAddAuditLog = async (newLog) => {
     setAuditLogs([newLog, ...auditLogs]);
     await createAuditLog(newLog);
@@ -287,6 +310,11 @@ export default function App() {
   const handleUpdateAuditLog = async (log) => {
     setAuditLogs(auditLogs.map(l => l.id === log.id ? log : l));
     await updateAuditLog(log.id, log);
+  };
+
+  const handleToggleHideAuditLog = async (id, isHidden) => {
+    setAuditLogs(auditLogs.map(l => l.id === id ? { ...l, isHidden } : l));
+    await toggleHideAuditLog(id, isHidden);
   };
 
   const handleDeleteAuditLog = async (id) => {
@@ -302,6 +330,11 @@ export default function App() {
   const handleUpdateInventoryItem = async (item) => {
     setInventoryItems(inventoryItems.map(i => i.id === item.id ? item : i));
     await updateInventoryItem(item.id, item);
+  };
+
+  const handleToggleHideInventoryItem = async (id, isHidden) => {
+    setInventoryItems(inventoryItems.map(i => i.id === id ? { ...i, isHidden } : i));
+    await toggleHideInventoryItem(id, isHidden);
   };
 
   const handleDeleteInventoryItem = async (id) => {
@@ -362,6 +395,12 @@ export default function App() {
     await updateFinancial(trans.id, trans);
   };
 
+  const handleToggleHideFinancial = async (id, isHidden) => {
+    const updatedTransactions = financials.transactions.map(t => t.id === id ? { ...t, isHidden } : t);
+    setFinancials({ ...financials, transactions: updatedTransactions });
+    await toggleHideFinancial(id, isHidden);
+  };
+
   const handleDeleteTransaction = async (id) => {
     const filteredTransactions = financials.transactions.filter(t => t.id !== id);
     const newSummary = calculateFinancialSummary(filteredTransactions);
@@ -375,7 +414,7 @@ export default function App() {
     await deleteFinancial(id);
   };
 
-  // --- DYNAMIC MONITORING CRUD ---
+  // --- DYNAMIC MONITORING CRUD & HIDE ---
   const handleSimulateSensorPing = () => {};
 
   const handleAddStatusEntry = async ({ type, item }) => {
@@ -407,6 +446,15 @@ export default function App() {
       });
     }
     await updateMonitoringEntry(item.id, { ...item, type });
+  };
+
+  const handleToggleHideMonitoringEntry = async (id, isHidden) => {
+    setMonitoringData({
+      fields: (monitoringData.fields || []).map(f => f.id === id ? { ...f, isHidden } : f),
+      equipment: (monitoringData.equipment || []).map(e => e.id === id ? { ...e, isHidden } : e),
+      livestock: (monitoringData.livestock || []).map(l => l.id === id ? { ...l, isHidden } : l)
+    });
+    await toggleHideMonitoringEntry(id, isHidden);
   };
 
   const handleDeleteStatusEntry = async ({ id, type }) => {
@@ -452,7 +500,9 @@ export default function App() {
             onAddGuide={handleAddGuide}
             onUpdateGuide={handleUpdateGuide}
             onDeleteGuide={handleDeleteGuide}
+            onToggleHideGuide={handleToggleHideGuide}
             isGuest={activeUser.isGuest}
+            activeUser={activeUser}
             onOpenLoginModal={() => setIsLoginModalOpen(true)}
           />
         )}
@@ -468,11 +518,14 @@ export default function App() {
             onAddTransaction={handleAddTransaction}
             onUpdateTransaction={handleUpdateTransaction}
             onDeleteTransaction={handleDeleteTransaction}
+            onToggleHideFinancial={handleToggleHideFinancial}
             onAddInventoryItem={handleAddInventoryItem}
             onUpdateInventoryItem={handleUpdateInventoryItem}
             onDeleteInventoryItem={handleDeleteInventoryItem}
+            onToggleHideInventoryItem={handleToggleHideInventoryItem}
             onUpdateAuditLog={handleUpdateAuditLog}
             onDeleteAuditLog={handleDeleteAuditLog}
+            onToggleHideAuditLog={handleToggleHideAuditLog}
             onToggleEquipmentStatus={handleToggleEquipmentStatus}
             onOpenLoginModal={() => setIsLoginModalOpen(true)}
           />
@@ -486,7 +539,9 @@ export default function App() {
             onAddStatusEntry={handleAddStatusEntry}
             onUpdateStatusEntry={handleUpdateStatusEntry}
             onDeleteStatusEntry={handleDeleteStatusEntry}
+            onToggleHideMonitoringEntry={handleToggleHideMonitoringEntry}
             isGuest={activeUser.isGuest}
+            activeUser={activeUser}
             onOpenLoginModal={() => setIsLoginModalOpen(true)}
           />
         )}

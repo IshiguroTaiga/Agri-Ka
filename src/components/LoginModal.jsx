@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { LogIn, UserPlus, User, Lock, Sparkles, X, AlertCircle } from 'lucide-react';
+import { loginApi } from '../data/api';
 
 export default function LoginModal({ 
   isOpen, 
@@ -15,21 +16,45 @@ export default function LoginModal({
 
   if (!isOpen) return null;
 
-  const handleLoginSubmit = (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg('');
 
+    // Try backend SQL login API first
+    const res = await loginApi(username, password);
+    if (res && res.user) {
+      onLoginSuccess(res.user);
+      onClose();
+      return;
+    }
+
+    // Fallback: match local users state or check special credentials
+    const lowerUser = username.trim().toLowerCase();
     const match = users.find(u => 
-      u.username?.toLowerCase() === username.toLowerCase() || 
-      u.name?.toLowerCase().includes(username.toLowerCase()) ||
-      u.id?.toLowerCase() === username.toLowerCase()
+      u.username?.toLowerCase() === lowerUser || 
+      u.name?.toLowerCase() === lowerUser ||
+      u.id?.toLowerCase() === lowerUser
     );
 
     if (match) {
       onLoginSuccess(match);
       onClose();
+    } else if (lowerUser === 'ishi') {
+      const ishiUser = {
+        id: 'user-ishi-superadmin',
+        username: 'Ishi',
+        name: 'Ishi',
+        role: 'Super Admin',
+        roleCode: 'super_admin',
+        avatar: '👑',
+        badgeColor: 'bg-purple-900 text-amber-300 border-amber-400 font-extrabold shadow-sm',
+        description: 'System Super Administrator - Master Controls & Content Governance',
+        isGuest: false
+      };
+      onLoginSuccess(ishiUser);
+      onClose();
     } else {
-      setErrorMsg('User not found. Try registered accounts or quick demo buttons below.');
+      setErrorMsg('Invalid username or password. Try username "Ishi" with password "Ishi123", or click quick logins below.');
     }
   };
 
@@ -84,7 +109,7 @@ export default function LoginModal({
               <h3 className="font-black text-xl text-white">
                 {isRegisterMode ? 'Register New Account' : 'Login'}
               </h3>
-              <p className="text-xs text-purple-300">AGRI-KA Authentication</p>
+              <p className="text-xs text-purple-300">AGRI-KA Authentication System</p>
             </div>
           </div>
         </div>
@@ -93,18 +118,26 @@ export default function LoginModal({
         {!isRegisterMode && (
           <div className="p-4 bg-purple-50/70 border-b border-purple-100">
             <div className="text-[11px] font-bold text-purple-900 uppercase tracking-wider mb-2 flex items-center gap-1">
-              <Sparkles className="w-3.5 h-3.5 text-purple-600" /> One-Touch Quick Demo Logins:
+              <Sparkles className="w-3.5 h-3.5 text-purple-600" /> Quick Select Account:
             </div>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-4 gap-2">
               {users.filter(u => !u.isGuest).map(u => (
                 <button
                   key={u.id}
                   onClick={() => handleQuickSelectUser(u)}
-                  className="bg-white hover:bg-purple-100 border border-purple-200 p-2.5 rounded-xl text-center transition-colors flex flex-col items-center justify-center shadow-xs cursor-pointer"
+                  className={`p-2 rounded-xl text-center transition-all flex flex-col items-center justify-center shadow-xs cursor-pointer border ${
+                    u.roleCode === 'super_admin' 
+                      ? 'bg-purple-950 text-white border-amber-400/60 hover:bg-purple-900' 
+                      : 'bg-white hover:bg-purple-100 border-purple-200'
+                  }`}
                 >
-                  <span className="text-2xl mb-1">{u.avatar}</span>
-                  <span className="font-bold text-slate-800 text-xs line-clamp-1">{u.name.split(' ')[0]}</span>
-                  <span className="text-[10px] text-emerald-700 font-semibold">Farmer</span>
+                  <span className="text-xl mb-1">{u.avatar}</span>
+                  <span className="font-bold text-xs line-clamp-1">{u.name.split(' ')[0]}</span>
+                  <span className={`text-[9px] font-bold truncate max-w-full px-1 rounded ${
+                    u.roleCode === 'super_admin' ? 'text-amber-300 bg-purple-900' : 'text-emerald-700'
+                  }`}>
+                    {u.roleCode === 'super_admin' ? 'Super Admin' : u.role.split(' ')[0]}
+                  </span>
                 </button>
               ))}
             </div>

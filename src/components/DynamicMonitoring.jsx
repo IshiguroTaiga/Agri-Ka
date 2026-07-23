@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Activity, Sprout, Truck, Feather, Plus, Lock, CheckCircle2, 
-  AlertTriangle, RefreshCw, X, ShieldCheck, Edit3, Trash2, Check
+  AlertTriangle, RefreshCw, X, ShieldCheck, Edit3, Trash2, Check, Eye, EyeOff
 } from 'lucide-react';
 import MediaInput from './MediaInput';
 import MediaDisplay from './MediaDisplay';
@@ -11,12 +11,16 @@ export default function DynamicMonitoring({
   onAddStatusEntry,
   onUpdateStatusEntry,
   onDeleteStatusEntry,
+  onToggleHideMonitoringEntry,
   isGuest,
+  activeUser,
   onOpenLoginModal
 }) {
   const [activeTab, setActiveTab] = useState('crops'); // 'crops', 'equipment', 'livestock'
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingEntry, setEditingEntry] = useState(null);
+
+  const isSuperAdmin = activeUser?.roleCode === 'super_admin' || activeUser?.role === 'Super Admin' || activeUser?.username?.toLowerCase() === 'ishi';
 
   // Form state for adding/editing status update
   const [itemType, setItemType] = useState('crop'); // 'crop', 'equipment', 'livestock'
@@ -28,6 +32,10 @@ export default function DynamicMonitoring({
   const [stage, setStage] = useState('');
   const [mediaUrl, setMediaUrl] = useState('');
   const [mediaType, setMediaType] = useState('image');
+
+  const displayFields = (monitoringData.fields || []).filter(f => isSuperAdmin || !f.isHidden);
+  const displayEquipment = (monitoringData.equipment || []).filter(e => isSuperAdmin || !e.isHidden);
+  const displayLivestock = (monitoringData.livestock || []).filter(l => isSuperAdmin || !l.isHidden);
 
   const resetForm = () => {
     setName('');
@@ -87,7 +95,8 @@ export default function DynamicMonitoring({
         stage: itemType === 'crop' ? stage : undefined,
         lastUpdated: new Date().toLocaleDateString(),
         mediaUrl,
-        mediaType
+        mediaType,
+        isHidden: editingEntry ? editingEntry.isHidden : false
       }
     };
 
@@ -152,7 +161,7 @@ export default function DynamicMonitoring({
             }`}
           >
             <Sprout className="w-4 h-4" />
-            <span>🌾 Crops & Fields Status ({monitoringData.fields.length})</span>
+            <span>🌾 Crops & Fields Status ({displayFields.length})</span>
           </button>
 
           <button
@@ -164,7 +173,7 @@ export default function DynamicMonitoring({
             }`}
           >
             <Truck className="w-4 h-4" />
-            <span>🚜 Machines & Equipment Status ({monitoringData.equipment.length})</span>
+            <span>🚜 Machines & Equipment Status ({displayEquipment.length})</span>
           </button>
 
           <button
@@ -176,7 +185,7 @@ export default function DynamicMonitoring({
             }`}
           >
             <Feather className="w-4 h-4" />
-            <span>🐄 Livestock & Animals Status ({monitoringData.livestock.length})</span>
+            <span>🐄 Livestock & Animals Status ({displayLivestock.length})</span>
           </button>
         </div>
       </div>
@@ -184,7 +193,7 @@ export default function DynamicMonitoring({
       {/* TAB 1: CROPS & FIELDS STATUS */}
       {activeTab === 'crops' && (
         <div className="space-y-4">
-          {monitoringData.fields.length === 0 ? (
+          {displayFields.length === 0 ? (
             <div className="bg-white rounded-3xl p-12 text-center border border-emerald-100 shadow-sm space-y-4 max-w-xl mx-auto my-8">
               <div className="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center mx-auto text-2xl font-bold">
                 🌾
@@ -203,8 +212,8 @@ export default function DynamicMonitoring({
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-6">
-              {monitoringData.fields.map(field => (
-                <div key={field.id} className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
+              {displayFields.map(field => (
+                <div key={field.id} className={`bg-white rounded-3xl border overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between group ${field.isHidden ? 'border-amber-400/80 bg-amber-50/20 ring-2 ring-amber-400/30' : 'border-slate-200'}`}>
                   <div>
                     {field.mediaUrl && (
                       <div className="relative h-44 bg-slate-900 overflow-hidden">
@@ -214,7 +223,14 @@ export default function DynamicMonitoring({
                     <div className="p-6 space-y-4">
                       <div className="flex justify-between items-start">
                         <div>
-                          <span className="text-[10px] font-bold uppercase text-slate-400">{field.location || 'Field Sector'}</span>
+                          <div className="flex items-center gap-1">
+                            <span className="text-[10px] font-bold uppercase text-slate-400">{field.location || 'Field Sector'}</span>
+                            {field.isHidden && isSuperAdmin && (
+                              <span className="bg-amber-950 text-amber-300 border border-amber-400/60 text-[9px] font-black px-1.5 py-0.5 rounded flex items-center gap-0.5">
+                                <EyeOff className="w-3 h-3 text-amber-400" /> Hidden
+                              </span>
+                            )}
+                          </div>
                           <h3 className="font-bold text-slate-900 text-base">{field.name}</h3>
                         </div>
                         <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
@@ -232,24 +248,40 @@ export default function DynamicMonitoring({
 
                   <div className="px-6 pb-4 flex justify-between items-center text-[10px] text-slate-400 border-t border-slate-100 pt-3 bg-slate-50/40">
                     <span>Updated: {field.lastUpdated || 'Today'}</span>
-                    {!isGuest && (
-                      <div className="flex items-center space-x-1">
+                    <div className="flex items-center space-x-1">
+                      {!isGuest && (
+                        <>
+                          <button
+                            onClick={(e) => handleOpenEditStatus(field, 'crop', e)}
+                            className="p-1.5 text-emerald-700 hover:bg-emerald-100 rounded-lg cursor-pointer"
+                            title="Edit Entry"
+                          >
+                            <Edit3 className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={(e) => handleDeleteStatus(field.id, 'crop', e)}
+                            className="p-1.5 text-red-600 hover:bg-red-100 rounded-lg cursor-pointer"
+                            title="Delete Entry"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </>
+                      )}
+                      {isSuperAdmin && (
                         <button
-                          onClick={(e) => handleOpenEditStatus(field, 'crop', e)}
-                          className="p-1.5 text-emerald-700 hover:bg-emerald-100 rounded-lg cursor-pointer"
-                          title="Edit Entry"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onToggleHideMonitoringEntry && onToggleHideMonitoringEntry(field.id, !field.isHidden);
+                          }}
+                          className={`p-1.5 rounded-lg cursor-pointer transition-all ${
+                            field.isHidden ? 'bg-amber-900 text-amber-300 hover:bg-amber-800' : 'text-slate-500 hover:bg-slate-200'
+                          }`}
+                          title={field.isHidden ? "Unhide Entry" : "Hide Entry"}
                         >
-                          <Edit3 className="w-3.5 h-3.5" />
+                          {field.isHidden ? <Eye className="w-3.5 h-3.5 text-amber-300" /> : <EyeOff className="w-3.5 h-3.5" />}
                         </button>
-                        <button
-                          onClick={(e) => handleDeleteStatus(field.id, 'crop', e)}
-                          className="p-1.5 text-red-600 hover:bg-red-100 rounded-lg cursor-pointer"
-                          title="Delete Entry"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -261,7 +293,7 @@ export default function DynamicMonitoring({
       {/* TAB 2: MACHINES & EQUIPMENT STATUS */}
       {activeTab === 'equipment' && (
         <div className="space-y-4">
-          {monitoringData.equipment.length === 0 ? (
+          {displayEquipment.length === 0 ? (
             <div className="bg-white rounded-3xl p-12 text-center border border-purple-100 shadow-sm space-y-4 max-w-xl mx-auto my-8">
               <div className="w-16 h-16 rounded-full bg-purple-50 border border-purple-200 text-purple-600 flex items-center justify-center mx-auto text-2xl font-bold">
                 🚜
@@ -280,8 +312,8 @@ export default function DynamicMonitoring({
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-6">
-              {monitoringData.equipment.map(eq => (
-                <div key={eq.id} className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md flex flex-col justify-between">
+              {displayEquipment.map(eq => (
+                <div key={eq.id} className={`bg-white rounded-3xl border overflow-hidden shadow-sm hover:shadow-md flex flex-col justify-between ${eq.isHidden ? 'border-amber-400/80 bg-amber-50/20 ring-2 ring-amber-400/30' : 'border-slate-200'}`}>
                   <div>
                     {eq.mediaUrl && (
                       <div className="relative h-44 bg-slate-900 overflow-hidden">
@@ -291,7 +323,14 @@ export default function DynamicMonitoring({
                     <div className="p-6 space-y-4">
                       <div className="flex justify-between items-start">
                         <div>
-                          <span className="text-[10px] font-bold uppercase text-slate-400">{eq.location || 'Shed / Field'}</span>
+                          <div className="flex items-center gap-1">
+                            <span className="text-[10px] font-bold uppercase text-slate-400">{eq.location || 'Shed / Field'}</span>
+                            {eq.isHidden && isSuperAdmin && (
+                              <span className="bg-amber-950 text-amber-300 border border-amber-400/60 text-[9px] font-black px-1.5 py-0.5 rounded flex items-center gap-0.5">
+                                <EyeOff className="w-3 h-3 text-amber-400" /> Hidden
+                              </span>
+                            )}
+                          </div>
                           <h3 className="font-bold text-slate-900 text-base">{eq.name}</h3>
                         </div>
                         <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-800 border border-purple-200">
@@ -309,24 +348,40 @@ export default function DynamicMonitoring({
 
                   <div className="px-6 pb-4 flex justify-between items-center text-[10px] text-slate-400 border-t border-slate-100 pt-3 bg-slate-50/40">
                     <span>Updated: {eq.lastUpdated || 'Today'}</span>
-                    {!isGuest && (
-                      <div className="flex items-center space-x-1">
+                    <div className="flex items-center space-x-1">
+                      {!isGuest && (
+                        <>
+                          <button
+                            onClick={(e) => handleOpenEditStatus(eq, 'equipment', e)}
+                            className="p-1.5 text-purple-700 hover:bg-purple-100 rounded-lg cursor-pointer"
+                            title="Edit Equipment"
+                          >
+                            <Edit3 className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={(e) => handleDeleteStatus(eq.id, 'equipment', e)}
+                            className="p-1.5 text-red-600 hover:bg-red-100 rounded-lg cursor-pointer"
+                            title="Delete Equipment"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </>
+                      )}
+                      {isSuperAdmin && (
                         <button
-                          onClick={(e) => handleOpenEditStatus(eq, 'equipment', e)}
-                          className="p-1.5 text-purple-700 hover:bg-purple-100 rounded-lg cursor-pointer"
-                          title="Edit Equipment"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onToggleHideMonitoringEntry && onToggleHideMonitoringEntry(eq.id, !eq.isHidden);
+                          }}
+                          className={`p-1.5 rounded-lg cursor-pointer transition-all ${
+                            eq.isHidden ? 'bg-amber-900 text-amber-300 hover:bg-amber-800' : 'text-slate-500 hover:bg-slate-200'
+                          }`}
+                          title={eq.isHidden ? "Unhide Equipment Status" : "Hide Equipment Status"}
                         >
-                          <Edit3 className="w-3.5 h-3.5" />
+                          {eq.isHidden ? <Eye className="w-3.5 h-3.5 text-amber-300" /> : <EyeOff className="w-3.5 h-3.5" />}
                         </button>
-                        <button
-                          onClick={(e) => handleDeleteStatus(eq.id, 'equipment', e)}
-                          className="p-1.5 text-red-600 hover:bg-red-100 rounded-lg cursor-pointer"
-                          title="Delete Equipment"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -338,7 +393,7 @@ export default function DynamicMonitoring({
       {/* TAB 3: LIVESTOCK & ANIMALS STATUS */}
       {activeTab === 'livestock' && (
         <div className="space-y-4">
-          {monitoringData.livestock.length === 0 ? (
+          {displayLivestock.length === 0 ? (
             <div className="bg-white rounded-3xl p-12 text-center border border-indigo-100 shadow-sm space-y-4 max-w-xl mx-auto my-8">
               <div className="w-16 h-16 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center mx-auto text-2xl font-bold">
                 🐄
@@ -357,8 +412,8 @@ export default function DynamicMonitoring({
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-6">
-              {monitoringData.livestock.map(ls => (
-                <div key={ls.id} className="bg-white rounded-3xl border border-indigo-100 overflow-hidden shadow-sm hover:shadow-md flex flex-col justify-between">
+              {displayLivestock.map(ls => (
+                <div key={ls.id} className={`bg-white rounded-3xl border overflow-hidden shadow-sm hover:shadow-md flex flex-col justify-between ${ls.isHidden ? 'border-amber-400/80 bg-amber-50/20 ring-2 ring-amber-400/30' : 'border-indigo-100'}`}>
                   <div>
                     {ls.mediaUrl && (
                       <div className="relative h-44 bg-slate-900 overflow-hidden">
@@ -368,7 +423,14 @@ export default function DynamicMonitoring({
                     <div className="p-6 space-y-4">
                       <div className="flex justify-between items-start">
                         <div>
-                          <span className="text-[10px] font-bold uppercase text-slate-400">{ls.location || 'Barn Pen'}</span>
+                          <div className="flex items-center gap-1">
+                            <span className="text-[10px] font-bold uppercase text-slate-400">{ls.location || 'Barn Pen'}</span>
+                            {ls.isHidden && isSuperAdmin && (
+                              <span className="bg-amber-950 text-amber-300 border border-amber-400/60 text-[9px] font-black px-1.5 py-0.5 rounded flex items-center gap-0.5">
+                                <EyeOff className="w-3 h-3 text-amber-400" /> Hidden
+                              </span>
+                            )}
+                          </div>
                           <h3 className="font-bold text-slate-900 text-base">{ls.name || ls.type}</h3>
                         </div>
                         <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-800 border border-indigo-200">
@@ -386,24 +448,40 @@ export default function DynamicMonitoring({
 
                   <div className="px-6 pb-4 flex justify-between items-center text-[10px] text-slate-400 border-t border-slate-100 pt-3 bg-slate-50/40">
                     <span>Updated: {ls.lastUpdated || 'Today'}</span>
-                    {!isGuest && (
-                      <div className="flex items-center space-x-1">
+                    <div className="flex items-center space-x-1">
+                      {!isGuest && (
+                        <>
+                          <button
+                            onClick={(e) => handleOpenEditStatus(ls, 'livestock', e)}
+                            className="p-1.5 text-indigo-700 hover:bg-indigo-100 rounded-lg cursor-pointer"
+                            title="Edit Livestock"
+                          >
+                            <Edit3 className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={(e) => handleDeleteStatus(ls.id, 'livestock', e)}
+                            className="p-1.5 text-red-600 hover:bg-red-100 rounded-lg cursor-pointer"
+                            title="Delete Livestock"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </>
+                      )}
+                      {isSuperAdmin && (
                         <button
-                          onClick={(e) => handleOpenEditStatus(ls, 'livestock', e)}
-                          className="p-1.5 text-indigo-700 hover:bg-indigo-100 rounded-lg cursor-pointer"
-                          title="Edit Livestock"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onToggleHideMonitoringEntry && onToggleHideMonitoringEntry(ls.id, !ls.isHidden);
+                          }}
+                          className={`p-1.5 rounded-lg cursor-pointer transition-all ${
+                            ls.isHidden ? 'bg-amber-900 text-amber-300 hover:bg-amber-800' : 'text-slate-500 hover:bg-slate-200'
+                          }`}
+                          title={ls.isHidden ? "Unhide Livestock Status" : "Hide Livestock Status"}
                         >
-                          <Edit3 className="w-3.5 h-3.5" />
+                          {ls.isHidden ? <Eye className="w-3.5 h-3.5 text-amber-300" /> : <EyeOff className="w-3.5 h-3.5" />}
                         </button>
-                        <button
-                          onClick={(e) => handleDeleteStatus(ls.id, 'livestock', e)}
-                          className="p-1.5 text-red-600 hover:bg-red-100 rounded-lg cursor-pointer"
-                          title="Delete Livestock"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}

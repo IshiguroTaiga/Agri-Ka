@@ -13,6 +13,17 @@ export const GUEST_USER = {
 export const INITIAL_USERS = [
   GUEST_USER,
   {
+    id: 'user-ishi-superadmin',
+    username: 'Ishi',
+    name: 'Ishi',
+    role: 'Super Admin',
+    roleCode: 'super_admin',
+    avatar: '👑',
+    badgeColor: 'bg-purple-900 text-amber-300 border-amber-400 font-extrabold shadow-sm',
+    description: 'System Super Administrator - Master Controls & Content Governance',
+    isGuest: false
+  },
+  {
     id: 'user-1',
     username: 'Berto',
     name: 'JBenedict Alberto',

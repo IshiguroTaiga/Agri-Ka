@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   BookOpen, Wrench, Sprout, Volume2, Plus, 
-  Leaf, Feather, ChevronRight, Lock, Edit3, Trash2, X, Check
+  Leaf, Feather, ChevronRight, Lock, Edit3, Trash2, X, Check, Eye, EyeOff
 } from 'lucide-react';
 import MediaInput from './MediaInput';
 import MediaDisplay from './MediaDisplay';
@@ -14,13 +14,17 @@ export default function KnowledgeHub({
   onAddGuide,
   onUpdateGuide,
   onDeleteGuide,
+  onToggleHideGuide,
   isGuest,
+  activeUser,
   onOpenLoginModal
 }) {
   const [activeCategory, setActiveCategory] = useState('all');
   const [selectedItem, setSelectedItem] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
+
+  const isSuperAdmin = activeUser?.roleCode === 'super_admin' || activeUser?.role === 'Super Admin' || activeUser?.username?.toLowerCase() === 'ishi';
 
   // Form state for adding/editing guide
   const [formTitle, setFormTitle] = useState('');
@@ -42,6 +46,7 @@ export default function KnowledgeHub({
   };
 
   const filteredItems = knowledgeItems.filter(item => {
+    if (item.isHidden && !isSuperAdmin) return false;
     const matchesCategory = activeCategory === 'all' || item.category === activeCategory;
     const matchesSearch = !searchQuery || 
       item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -100,7 +105,8 @@ export default function KnowledgeHub({
       description: formDescription || formSummary,
       mediaUrl: formMediaUrl,
       mediaType: formMediaType,
-      image: formMediaUrl || 'https://images.unsplash.com/photo-1592417817098-8f3d6ef23a28?auto=format&fit=crop&w=600&q=80'
+      image: formMediaUrl || 'https://images.unsplash.com/photo-1592417817098-8f3d6ef23a28?auto=format&fit=crop&w=600&q=80',
+      isHidden: editingItem ? editingItem.isHidden : false
     };
 
     if (editingItem) {
@@ -127,6 +133,13 @@ export default function KnowledgeHub({
     }
   };
 
+  const handleToggleHide = (item, e) => {
+    e?.stopPropagation();
+    if (onToggleHideGuide) {
+      onToggleHideGuide(item.id, !item.isHidden);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Category Navigation Pills */}
@@ -141,7 +154,7 @@ export default function KnowledgeHub({
             }`}
           >
             <BookOpen className="w-4 h-4" />
-            <span>All Farm Guides ({knowledgeItems.length})</span>
+            <span>All Farm Guides ({filteredItems.length})</span>
           </button>
 
           <button
@@ -229,7 +242,9 @@ export default function KnowledgeHub({
           {filteredItems.map(item => (
             <div 
               key={item.id}
-              className="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between group"
+              className={`bg-white rounded-2xl border shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between group ${
+                item.isHidden ? 'border-amber-400/80 bg-amber-50/20 ring-2 ring-amber-400/30' : 'border-slate-200'
+              }`}
             >
               <div>
                 <div className="relative h-48 overflow-hidden bg-slate-900">
@@ -240,9 +255,16 @@ export default function KnowledgeHub({
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent pointer-events-none"></div>
 
-                  <span className="absolute top-3 left-3 bg-slate-900/90 backdrop-blur-md text-emerald-300 border border-emerald-500/40 text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider z-10">
-                    {getCategoryLabel(item.category)}
-                  </span>
+                  <div className="absolute top-3 left-3 flex flex-col gap-1 z-10 items-start">
+                    <span className="bg-slate-900/90 backdrop-blur-md text-emerald-300 border border-emerald-500/40 text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                      {getCategoryLabel(item.category)}
+                    </span>
+                    {item.isHidden && isSuperAdmin && (
+                      <span className="bg-amber-950/90 text-amber-300 border border-amber-400/60 text-[10px] font-black px-2.5 py-0.5 rounded-full flex items-center gap-1 uppercase tracking-wider shadow-sm">
+                        <EyeOff className="w-3 h-3 text-amber-400" /> Hidden (Super Admin View)
+                      </span>
+                    )}
+                  </div>
 
                   <div className="absolute top-3 right-3 flex items-center space-x-1.5 z-10">
                     <button
@@ -269,6 +291,19 @@ export default function KnowledgeHub({
                           <Trash2 className="w-3.5 h-3.5 text-red-300" />
                         </button>
                       </>
+                    )}
+                    {isSuperAdmin && (
+                      <button
+                        onClick={(e) => handleToggleHide(item, e)}
+                        title={item.isHidden ? "Unhide Guide (Make visible to everyone)" : "Hide Guide (Visible to Super Admin only)"}
+                        className={`p-1.5 rounded-full border cursor-pointer transition-all ${
+                          item.isHidden 
+                            ? 'bg-amber-900/95 text-amber-200 hover:bg-amber-800 border-amber-400/60 shadow-md animate-pulse' 
+                            : 'bg-slate-800/90 text-slate-300 hover:bg-slate-700 border-slate-600'
+                        }`}
+                      >
+                        {item.isHidden ? <Eye className="w-3.5 h-3.5 text-amber-300" /> : <EyeOff className="w-3.5 h-3.5 text-slate-300" />}
+                      </button>
                     )}
                   </div>
 

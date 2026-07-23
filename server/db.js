@@ -164,10 +164,15 @@ export const initDb = async () => {
 
     await safeAddColumn('audit_logs', 'media_url TEXT');
     await safeAddColumn('audit_logs', 'media_type TEXT');
+    await safeAddColumn('audit_logs', 'is_hidden INTEGER DEFAULT 0');
     await safeAddColumn('inventory', 'media_url TEXT');
     await safeAddColumn('inventory', 'media_type TEXT');
+    await safeAddColumn('inventory', 'is_hidden INTEGER DEFAULT 0');
     await safeAddColumn('financials', 'media_url TEXT');
     await safeAddColumn('financials', 'media_type TEXT');
+    await safeAddColumn('financials', 'is_hidden INTEGER DEFAULT 0');
+    await safeAddColumn('knowledge_hub', 'is_hidden INTEGER DEFAULT 0');
+    await safeAddColumn('monitoring_entries', 'is_hidden INTEGER DEFAULT 0');
 
     console.log('[SQL Database] Schema verified & initialized successfully.');
 
@@ -177,8 +182,20 @@ export const initDb = async () => {
       console.log('[SQL Database] Seeding default farm personnel accounts...');
       
       const defaultPassword = await bcrypt.hash('farm123', 10);
+      const ishiPassword = await bcrypt.hash('Ishi123', 10);
 
       const usersToSeed = [
+        {
+          id: 'user-ishi-superadmin',
+          username: 'Ishi',
+          password_hash: ishiPassword,
+          name: 'Ishi',
+          role: 'Super Admin',
+          role_code: 'super_admin',
+          avatar: '👑',
+          badge_color: 'bg-purple-900 text-amber-300 border-amber-400 font-extrabold shadow-sm',
+          description: 'System Super Administrator - Master Controls & Content Governance'
+        },
         {
           id: 'user-1',
           username: 'Berto',
@@ -221,7 +238,29 @@ export const initDb = async () => {
           [u.id, u.username, u.password_hash, u.name, u.role, u.role_code, u.avatar, u.badge_color, u.description]
         );
       }
-      console.log('[SQL Database] Default users seeded successfully! (Password for all: farm123)');
+      console.log('[SQL Database] Default users seeded successfully! (Password for Ishi: Ishi123, others: farm123)');
+    } else {
+      // Ensure Super Admin Ishi account exists even if table was previously seeded
+      const ishiUser = await getQuery('SELECT id FROM users WHERE username = ?', ['Ishi']);
+      if (!ishiUser) {
+        const ishiPassword = await bcrypt.hash('Ishi123', 10);
+        await runQuery(
+          `INSERT INTO users (id, username, password_hash, name, role, role_code, avatar, badge_color, description)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          [
+            'user-ishi-superadmin',
+            'Ishi',
+            ishiPassword,
+            'Ishi',
+            'Super Admin',
+            'super_admin',
+            '👑',
+            'bg-purple-900 text-amber-300 border-amber-400 font-extrabold shadow-sm',
+            'System Super Administrator - Master Controls & Content Governance'
+          ]
+        );
+        console.log('[SQL Database] Super Admin user "Ishi" added successfully.');
+      }
     }
 
     // Seed Knowledge Hub
