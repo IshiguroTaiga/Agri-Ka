@@ -201,8 +201,8 @@ export const initDb = async () => {
           username: 'Berto',
           password_hash: defaultPassword,
           name: 'JBenedict Alberto',
-          role: 'Field Worker',
-          role_code: 'worker',
+          role: 'Farmer',
+          role_code: 'farmer',
           avatar: '👨‍🌾',
           badge_color: 'bg-emerald-100 text-emerald-800 border-emerald-300',
           description: 'Main field operator - Rice & Corn Sectors'
@@ -212,10 +212,10 @@ export const initDb = async () => {
           username: 'Nythan',
           password_hash: defaultPassword,
           name: 'Nythan Bagasani',
-          role: 'Farm Manager',
-          role_code: 'manager',
+          role: 'Farmer',
+          role_code: 'farmer',
           avatar: '👩‍💼',
-          badge_color: 'bg-purple-100 text-purple-800 border-purple-300',
+          badge_color: 'bg-emerald-100 text-emerald-800 border-emerald-300',
           description: 'Operations head, budgeting & approvals'
         },
         {
@@ -223,10 +223,10 @@ export const initDb = async () => {
           username: 'Boni',
           password_hash: defaultPassword,
           name: 'Nathaniel Bonifacio',
-          role: 'Inventory & Tech Specialist',
-          role_code: 'tech',
+          role: 'Farmer',
+          role_code: 'farmer',
           avatar: '🛠️',
-          badge_color: 'bg-indigo-100 text-indigo-800 border-indigo-300',
+          badge_color: 'bg-emerald-100 text-emerald-800 border-emerald-300',
           description: 'Machinery maintenance & stock inventory controller'
         }
       ];

@@ -120,24 +120,16 @@ export default function LoginModal({
             <div className="text-[11px] font-bold text-purple-900 uppercase tracking-wider mb-2 flex items-center gap-1">
               <Sparkles className="w-3.5 h-3.5 text-purple-600" /> Quick Select Account:
             </div>
-            <div className="grid grid-cols-4 gap-2">
-              {users.filter(u => !u.isGuest).map(u => (
+            <div className="grid grid-cols-3 gap-2">
+              {users.filter(u => !u.isGuest && u.roleCode !== 'super_admin' && u.username?.toLowerCase() !== 'ishi').map(u => (
                 <button
                   key={u.id}
                   onClick={() => handleQuickSelectUser(u)}
-                  className={`p-2 rounded-xl text-center transition-all flex flex-col items-center justify-center shadow-xs cursor-pointer border ${
-                    u.roleCode === 'super_admin' 
-                      ? 'bg-purple-950 text-white border-amber-400/60 hover:bg-purple-900' 
-                      : 'bg-white hover:bg-purple-100 border-purple-200'
-                  }`}
+                  className="bg-white hover:bg-purple-100 border border-purple-200 p-2.5 rounded-xl text-center transition-colors flex flex-col items-center justify-center shadow-xs cursor-pointer"
                 >
-                  <span className="text-xl mb-1">{u.avatar}</span>
-                  <span className="font-bold text-xs line-clamp-1">{u.name.split(' ')[0]}</span>
-                  <span className={`text-[9px] font-bold truncate max-w-full px-1 rounded ${
-                    u.roleCode === 'super_admin' ? 'text-amber-300 bg-purple-900' : 'text-emerald-700'
-                  }`}>
-                    {u.roleCode === 'super_admin' ? 'Super Admin' : u.role.split(' ')[0]}
-                  </span>
+                  <span className="text-2xl mb-1">{u.avatar || '👨‍🌾'}</span>
+                  <span className="font-bold text-slate-800 text-xs line-clamp-1">{u.name.split(' ')[0]}</span>
+                  <span className="text-[10px] text-emerald-700 font-semibold">Farmer</span>
                 </button>
               ))}
             </div>
