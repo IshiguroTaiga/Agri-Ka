@@ -86,19 +86,22 @@ export default function App() {
   // Fetch initial data from SQL Database & helper
   const fetchSqlData = async () => {
     const kb = await getKnowledgeItems();
-    if (kb && Array.isArray(kb) && kb.length > 0) setKnowledgeItems(kb);
-    else setKnowledgeItems(INITIAL_KNOWLEDGE_BASE);
+    if (kb && Array.isArray(kb)) {
+      setKnowledgeItems(kb);
+    }
 
     const inv = await getInventoryItems();
-    if (inv && Array.isArray(inv) && inv.length > 0) setInventoryItems(inv);
-    else setInventoryItems(INITIAL_INVENTORY);
+    if (inv && Array.isArray(inv)) {
+      setInventoryItems(inv);
+    }
 
     const logs = await getAuditLogs();
-    if (logs && Array.isArray(logs) && logs.length > 0) setAuditLogs(logs);
-    else setAuditLogs(INITIAL_AUDIT_LOGS);
+    if (logs && Array.isArray(logs)) {
+      setAuditLogs(logs);
+    }
 
     const fins = await getFinancials();
-    if (fins && Array.isArray(fins) && fins.length > 0) {
+    if (fins && Array.isArray(fins)) {
       let rev = 0;
       let exp = 0;
       fins.forEach(t => {
@@ -116,15 +119,11 @@ export default function App() {
         },
         transactions: fins
       });
-    } else {
-      setFinancials(INITIAL_FINANCIALS);
     }
 
     const mon = await getMonitoringEntries();
-    if (mon && mon.fields && (mon.fields.length > 0 || mon.equipment?.length > 0 || mon.livestock?.length > 0)) {
+    if (mon && (mon.fields !== undefined || mon.equipment !== undefined || mon.livestock !== undefined)) {
       setMonitoringData(mon);
-    } else {
-      setMonitoringData(INITIAL_MONITORING_SENSORS);
     }
   };
 
@@ -132,21 +131,43 @@ export default function App() {
     fetchSqlData();
   }, []);
 
-  // Real-time EventSource Listener (SSE) for instant cross-tab / cross-user updates
+  // Real-time EventSource Listener (SSE) & Polling Fallback for instant cross-tab / cross-user updates
   useEffect(() => {
     let eventSource;
-    try {
-      eventSource = new EventSource('/api/events');
-      eventSource.onmessage = (e) => {
-        console.log('[Real-Time SSE] Received server change event:', e.data);
-        fetchSqlData();
-      };
-    } catch (err) {
-      console.warn('[Real-Time SSE warning] Could not establish EventSource connection:', err);
-    }
+
+    const connectSSE = () => {
+      try {
+        eventSource = new EventSource('/api/events');
+
+        eventSource.onopen = () => {
+          console.log('[Real-Time Sync] SSE connected successfully.');
+        };
+
+        eventSource.onmessage = (e) => {
+          console.log('[Real-Time Sync] Received server change event:', e.data);
+          fetchSqlData();
+        };
+
+        eventSource.onerror = (err) => {
+          console.warn('[Real-Time Sync warning] EventSource disconnected, retrying...', err);
+          if (eventSource) eventSource.close();
+          setTimeout(connectSSE, 3000);
+        };
+      } catch (err) {
+        console.warn('[Real-Time Sync warning] Could not establish EventSource:', err);
+      }
+    };
+
+    connectSSE();
+
+    // 4-second polling fallback to guarantee real-time reflection across all users & sessions
+    const pollInterval = setInterval(() => {
+      fetchSqlData();
+    }, 4000);
 
     return () => {
       if (eventSource) eventSource.close();
+      clearInterval(pollInterval);
     };
   }, []);
 

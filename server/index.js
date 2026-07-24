@@ -22,16 +22,32 @@ app.get('/api/events', (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
   res.setHeader('Connection', 'keep-alive');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('X-Accel-Buffering', 'no');
   res.flushHeaders();
 
   const clientId = Date.now();
   const newClient = { id: clientId, res };
   sseClients.push(newClient);
 
+  // Send initial connection confirmation
+  try {
+    res.write(`data: ${JSON.stringify({ type: 'connected', timestamp: Date.now() })}\n\n`);
+  } catch (e) {}
+
   req.on('close', () => {
     sseClients = sseClients.filter(c => c.id !== clientId);
   });
 });
+
+// Periodic heartbeat keepalive to prevent browser SSE disconnects
+setInterval(() => {
+  sseClients.forEach(client => {
+    try {
+      client.res.write(`: heartbeat\n\n`);
+    } catch (e) {}
+  });
+}, 15000);
 
 const broadcastChange = (type, data = {}) => {
   const payload = JSON.stringify({ type, data, timestamp: Date.now() });
@@ -202,12 +218,19 @@ app.put('/api/knowledge/:id', async (req, res) => {
     const mUrl = mediaUrl || image || '';
     const mType = mediaType || (mUrl.startsWith('data:video') || mUrl.match(/\.(mp4|webm|ogg|mov)$/i) ? 'video' : 'image');
     const tagStr = Array.isArray(tags) ? JSON.stringify(tags) : JSON.stringify([category]);
-    const hiddenVal = isHidden !== undefined ? (isHidden ? 1 : 0) : 0;
 
-    await runQuery(
-      `UPDATE knowledge_hub SET category = ?, title = ?, summary = ?, description = ?, tags = ?, season = ?, media_url = ?, media_type = ?, is_hidden = ? WHERE id = ?`,
-      [category, title, summary, description, tagStr, season, mUrl, mType, hiddenVal, req.params.id]
-    );
+    if (isHidden !== undefined) {
+      const hiddenVal = isHidden ? 1 : 0;
+      await runQuery(
+        `UPDATE knowledge_hub SET category = ?, title = ?, summary = ?, description = ?, tags = ?, season = ?, media_url = ?, media_type = ?, is_hidden = ? WHERE id = ?`,
+        [category, title, summary, description, tagStr, season, mUrl, mType, hiddenVal, req.params.id]
+      );
+    } else {
+      await runQuery(
+        `UPDATE knowledge_hub SET category = ?, title = ?, summary = ?, description = ?, tags = ?, season = ?, media_url = ?, media_type = ? WHERE id = ?`,
+        [category, title, summary, description, tagStr, season, mUrl, mType, req.params.id]
+      );
+    }
 
     broadcastChange('knowledge_updated', { id: req.params.id });
     res.json({ message: 'Guide updated in SQL database' });
@@ -293,12 +316,19 @@ app.put('/api/logs/:id', async (req, res) => {
   try {
     const { timestamp, user, userRole, actionType, itemTagged, category, location, quantityDetails, notes, verificationStatus, mediaUrl, mediaType, isHidden } = req.body;
     const mType = mediaType || (mediaUrl?.startsWith('data:video') || mediaUrl?.match(/\.(mp4|webm|ogg|mov)$/i) ? 'video' : 'image');
-    const hiddenVal = isHidden !== undefined ? (isHidden ? 1 : 0) : 0;
 
-    await runQuery(
-      `UPDATE audit_logs SET timestamp = ?, user = ?, user_role = ?, action_type = ?, item_tagged = ?, category = ?, location = ?, quantity_details = ?, notes = ?, verification_status = ?, media_url = ?, media_type = ?, is_hidden = ? WHERE id = ?`,
-      [timestamp, user, userRole, actionType, itemTagged, category, location, quantityDetails, notes, verificationStatus, mediaUrl || null, mType, hiddenVal, req.params.id]
-    );
+    if (isHidden !== undefined) {
+      const hiddenVal = isHidden ? 1 : 0;
+      await runQuery(
+        `UPDATE audit_logs SET timestamp = ?, user = ?, user_role = ?, action_type = ?, item_tagged = ?, category = ?, location = ?, quantity_details = ?, notes = ?, verification_status = ?, media_url = ?, media_type = ?, is_hidden = ? WHERE id = ?`,
+        [timestamp, user, userRole, actionType, itemTagged, category, location, quantityDetails, notes, verificationStatus, mediaUrl || null, mType, hiddenVal, req.params.id]
+      );
+    } else {
+      await runQuery(
+        `UPDATE audit_logs SET timestamp = ?, user = ?, user_role = ?, action_type = ?, item_tagged = ?, category = ?, location = ?, quantity_details = ?, notes = ?, verification_status = ?, media_url = ?, media_type = ? WHERE id = ?`,
+        [timestamp, user, userRole, actionType, itemTagged, category, location, quantityDetails, notes, verificationStatus, mediaUrl || null, mType, req.params.id]
+      );
+    }
 
     broadcastChange('logs_updated', { id: req.params.id });
     res.json({ message: 'Log updated in SQL database' });
@@ -382,13 +412,20 @@ app.put('/api/inventory/:id', async (req, res) => {
   try {
     const { code, name, category, status, location, assignedTo, stockQty, unit, minThreshold, lastMaintained, notes, mediaUrl, mediaType, isHidden } = req.body;
     const mType = mediaType || (mediaUrl?.startsWith('data:video') || mediaUrl?.match(/\.(mp4|webm|ogg|mov)$/i) ? 'video' : 'image');
-    const hiddenVal = isHidden !== undefined ? (isHidden ? 1 : 0) : 0;
 
     if (name) {
-      await runQuery(
-        `UPDATE inventory SET code = ?, name = ?, category = ?, status = ?, location = ?, assigned_to = ?, stock_qty = ?, unit = ?, min_threshold = ?, last_maintained = ?, notes = ?, media_url = ?, media_type = ?, is_hidden = ? WHERE id = ?`,
-        [code, name, category, status, location, assignedTo, stockQty, unit, minThreshold, lastMaintained, notes, mediaUrl || null, mType, hiddenVal, req.params.id]
-      );
+      if (isHidden !== undefined) {
+        const hiddenVal = isHidden ? 1 : 0;
+        await runQuery(
+          `UPDATE inventory SET code = ?, name = ?, category = ?, status = ?, location = ?, assigned_to = ?, stock_qty = ?, unit = ?, min_threshold = ?, last_maintained = ?, notes = ?, media_url = ?, media_type = ?, is_hidden = ? WHERE id = ?`,
+          [code, name, category, status, location, assignedTo, stockQty, unit, minThreshold, lastMaintained, notes, mediaUrl || null, mType, hiddenVal, req.params.id]
+        );
+      } else {
+        await runQuery(
+          `UPDATE inventory SET code = ?, name = ?, category = ?, status = ?, location = ?, assigned_to = ?, stock_qty = ?, unit = ?, min_threshold = ?, last_maintained = ?, notes = ?, media_url = ?, media_type = ? WHERE id = ?`,
+          [code, name, category, status, location, assignedTo, stockQty, unit, minThreshold, lastMaintained, notes, mediaUrl || null, mType, req.params.id]
+        );
+      }
     } else {
       // Partial update (e.g. status toggle)
       await runQuery('UPDATE inventory SET status = ? WHERE id = ?', [status, req.params.id]);
@@ -470,12 +507,19 @@ app.put('/api/financials/:id', async (req, res) => {
   try {
     const { date, title, type, amount, category, loggedBy, mediaUrl, mediaType, isHidden } = req.body;
     const mType = mediaType || (mediaUrl?.startsWith('data:video') || mediaUrl?.match(/\.(mp4|webm|ogg|mov)$/i) ? 'video' : 'image');
-    const hiddenVal = isHidden !== undefined ? (isHidden ? 1 : 0) : 0;
 
-    await runQuery(
-      `UPDATE financials SET date = ?, title = ?, type = ?, amount = ?, category = ?, logged_by = ?, media_url = ?, media_type = ?, is_hidden = ? WHERE id = ?`,
-      [date, title, type, amount, category, loggedBy, mediaUrl || null, mType, hiddenVal, req.params.id]
-    );
+    if (isHidden !== undefined) {
+      const hiddenVal = isHidden ? 1 : 0;
+      await runQuery(
+        `UPDATE financials SET date = ?, title = ?, type = ?, amount = ?, category = ?, logged_by = ?, media_url = ?, media_type = ?, is_hidden = ? WHERE id = ?`,
+        [date, title, type, amount, category, loggedBy, mediaUrl || null, mType, hiddenVal, req.params.id]
+      );
+    } else {
+      await runQuery(
+        `UPDATE financials SET date = ?, title = ?, type = ?, amount = ?, category = ?, logged_by = ?, media_url = ?, media_type = ? WHERE id = ?`,
+        [date, title, type, amount, category, loggedBy, mediaUrl || null, mType, req.params.id]
+      );
+    }
 
     broadcastChange('financials_updated', { id: req.params.id });
     res.json({ message: 'Financial transaction updated in SQL DB' });
@@ -565,12 +609,19 @@ app.put('/api/monitoring/:id', async (req, res) => {
   try {
     const { type, name, location, status, details, crop, stage, lastUpdated, mediaUrl, mediaType, isHidden } = req.body;
     const mType = mediaType || (mediaUrl?.startsWith('data:video') || mediaUrl?.match(/\.(mp4|webm|ogg|mov)$/i) ? 'video' : 'image');
-    const hiddenVal = isHidden !== undefined ? (isHidden ? 1 : 0) : 0;
 
-    await runQuery(
-      `UPDATE monitoring_entries SET type = ?, name = ?, location = ?, status = ?, details = ?, crop = ?, stage = ?, last_updated = ?, media_url = ?, media_type = ?, is_hidden = ? WHERE id = ?`,
-      [type, name, location, status, details, crop || null, stage || null, lastUpdated || new Date().toLocaleDateString(), mediaUrl || null, mType, hiddenVal, req.params.id]
-    );
+    if (isHidden !== undefined) {
+      const hiddenVal = isHidden ? 1 : 0;
+      await runQuery(
+        `UPDATE monitoring_entries SET type = ?, name = ?, location = ?, status = ?, details = ?, crop = ?, stage = ?, last_updated = ?, media_url = ?, media_type = ?, is_hidden = ? WHERE id = ?`,
+        [type, name, location, status, details, crop || null, stage || null, lastUpdated || new Date().toLocaleDateString(), mediaUrl || null, mType, hiddenVal, req.params.id]
+      );
+    } else {
+      await runQuery(
+        `UPDATE monitoring_entries SET type = ?, name = ?, location = ?, status = ?, details = ?, crop = ?, stage = ?, last_updated = ?, media_url = ?, media_type = ? WHERE id = ?`,
+        [type, name, location, status, details, crop || null, stage || null, lastUpdated || new Date().toLocaleDateString(), mediaUrl || null, mType, req.params.id]
+      );
+    }
 
     broadcastChange('monitoring_updated', { id: req.params.id });
     res.json({ message: 'Monitoring entry updated in SQL DB' });
