@@ -49,10 +49,8 @@ export default function KnowledgeHub({
     }
   };
 
-  const [showHiddenItems, setShowHiddenItems] = useState(false);
-
   const filteredItems = knowledgeItems.filter(item => {
-    if (item.isHidden && !showHiddenItems) return false;
+    if (item.isHidden && !isSuperAdmin) return false;
     const matchesCategory = activeCategory === 'all' || item.category === activeCategory;
     const matchesSearch = !searchQuery || 
       item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||

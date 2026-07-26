@@ -37,11 +37,9 @@ export default function DynamicMonitoring({
   const [mediaUrl, setMediaUrl] = useState('');
   const [mediaType, setMediaType] = useState('image');
 
-  const [showHiddenItems, setShowHiddenItems] = useState(false);
-
-  const displayFields = (monitoringData.fields || []).filter(f => showHiddenItems || !f.isHidden);
-  const displayEquipment = (monitoringData.equipment || []).filter(e => showHiddenItems || !e.isHidden);
-  const displayLivestock = (monitoringData.livestock || []).filter(l => showHiddenItems || !l.isHidden);
+  const displayFields = (monitoringData.fields || []).filter(f => isSuperAdmin || !f.isHidden);
+  const displayEquipment = (monitoringData.equipment || []).filter(e => isSuperAdmin || !e.isHidden);
+  const displayLivestock = (monitoringData.livestock || []).filter(l => isSuperAdmin || !l.isHidden);
 
   const resetForm = () => {
     setName('');

@@ -79,15 +79,13 @@ export default function RecordInventory({
 
   const isGuest = activeUser?.isGuest;
 
-  const [showHiddenItems, setShowHiddenItems] = useState(false);
-
-  const displayLogs = auditLogs.filter(log => showHiddenItems || !log.isHidden);
+  const displayLogs = auditLogs.filter(log => isSuperAdmin || !log.isHidden);
   const displayInventory = inventoryItems.filter(item => {
-    if (item.isHidden && !showHiddenItems) return false;
+    if (item.isHidden && !isSuperAdmin) return false;
     return item.name.toLowerCase().includes(inventorySearch.toLowerCase()) ||
            (item.code && item.code.toLowerCase().includes(inventorySearch.toLowerCase()));
   });
-  const displayFinancials = financials.transactions.filter(t => showHiddenItems || !t.isHidden);
+  const displayFinancials = financials.transactions.filter(t => isSuperAdmin || !t.isHidden);
 
   const handleOpenAddLog = () => {
     if (isGuest) onOpenLoginModal();
