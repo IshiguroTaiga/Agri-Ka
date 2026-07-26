@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
+import Sidebar from './components/Sidebar';
 import KnowledgeHub from './components/KnowledgeHub';
 import RecordInventory from './components/RecordInventory';
 import DynamicMonitoring from './components/DynamicMonitoring';
@@ -30,11 +31,10 @@ export default function App() {
   const [users, setUsers] = useState(() => {
     const saved = localStorage.getItem('agri_users');
     if (saved) {
-      const parsed = JSON.parse(saved);
-      if (parsed.some(u => u.role !== 'Farmer' && !u.isGuest)) {
-        return INITIAL_USERS;
-      }
-      return parsed;
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      } catch (e) {}
     }
     return INITIAL_USERS;
   });
@@ -44,8 +44,15 @@ export default function App() {
     return saved ? JSON.parse(saved) : GUEST_USER;
   });
 
-  // Navigation & Search State
-  const [activeTab, setActiveTab] = useState('hub');
+  // Sidebar & Navigation States
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  
+  const [activeTab, setActiveTab] = useState('hub'); // 'hub', 'inventory', 'monitoring'
+  const [activeCategory, setActiveCategory] = useState('all'); // 'all', 'tech', 'knowledge', 'crops', 'livestock'
+  const [inventorySubTab, setInventorySubTab] = useState('logs'); // 'logs', 'inventory', 'financials'
+  const [monitoringSubTab, setMonitoringSubTab] = useState('crops'); // 'crops', 'equipment', 'livestock'
+
   const [searchQuery, setSearchQuery] = useState('');
   const [logoUrl, setLogoUrl] = useState(() => {
     return localStorage.getItem('agri_logo_url') || '/THerta_LogoWFrame.png';
@@ -131,7 +138,40 @@ export default function App() {
     fetchSqlData();
   }, []);
 
-  // Real-time EventSource Listener (SSE) & Polling Fallback for instant cross-tab / cross-user updates
+  // Instant Cross-Tab Sync via BroadcastChannel & window storage event
+  useEffect(() => {
+    let syncChannel;
+    try {
+      syncChannel = new BroadcastChannel('agri_ka_sync');
+      syncChannel.onmessage = () => {
+        fetchSqlData();
+      };
+    } catch (e) {}
+
+    const handleStorageChange = () => {
+      try {
+        const savedKb = localStorage.getItem('agri_knowledge');
+        if (savedKb) setKnowledgeItems(JSON.parse(savedKb));
+        const savedInv = localStorage.getItem('agri_inventory');
+        if (savedInv) setInventoryItems(JSON.parse(savedInv));
+        const savedLogs = localStorage.getItem('agri_audit_logs');
+        if (savedLogs) setAuditLogs(JSON.parse(savedLogs));
+        const savedFins = localStorage.getItem('agri_financials');
+        if (savedFins) setFinancials(JSON.parse(savedFins));
+        const savedMon = localStorage.getItem('agri_monitoring');
+        if (savedMon) setMonitoringData(JSON.parse(savedMon));
+      } catch (e) {}
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      if (syncChannel) syncChannel.close();
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
+  // Real-time EventSource Listener (SSE) & Polling Fallback
   useEffect(() => {
     let eventSource;
 
@@ -149,21 +189,17 @@ export default function App() {
         };
 
         eventSource.onerror = (err) => {
-          console.warn('[Real-Time Sync warning] EventSource disconnected, retrying...', err);
           if (eventSource) eventSource.close();
-          setTimeout(connectSSE, 3000);
+          setTimeout(connectSSE, 2000);
         };
-      } catch (err) {
-        console.warn('[Real-Time Sync warning] Could not establish EventSource:', err);
-      }
+      } catch (err) {}
     };
 
     connectSSE();
 
-    // 4-second polling fallback to guarantee real-time reflection across all users & sessions
     const pollInterval = setInterval(() => {
       fetchSqlData();
-    }, 4000);
+    }, 1500);
 
     return () => {
       if (eventSource) eventSource.close();
@@ -176,8 +212,22 @@ export default function App() {
     try {
       localStorage.setItem(key, JSON.stringify(data));
     } catch (err) {
-      console.warn(`[Storage Quota Exceeded] Skipped cache for '${key}'. Items are preserved in Express SQL Database.`, err.message);
+      try {
+        const sanitized = JSON.parse(JSON.stringify(data, (k, v) => {
+          if (typeof v === 'string' && v.startsWith('data:image') && v.length > 500) {
+            return '';
+          }
+          return v;
+        }));
+        localStorage.setItem(key, JSON.stringify(sanitized));
+      } catch (e) {}
     }
+
+    try {
+      const bc = new BroadcastChannel('agri_ka_sync');
+      bc.postMessage({ key });
+      bc.close();
+    } catch (e) {}
   };
 
   // Sync state to localStorage for offline fallback
@@ -222,7 +272,6 @@ export default function App() {
 
   const [availableVoices, setAvailableVoices] = useState([]);
 
-  // Preload system voices to prevent fallback to default male voice (Microsoft David)
   useEffect(() => {
     if ('speechSynthesis' in window) {
       const loadVoices = () => {
@@ -240,10 +289,8 @@ export default function App() {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
-
       const voices = availableVoices.length > 0 ? availableVoices : window.speechSynthesis.getVoices();
 
-      // Exclude male voice names explicitly
       const nonMaleVoices = voices.filter(v => {
         const name = v.name.toLowerCase();
         return !(
@@ -258,8 +305,6 @@ export default function App() {
         );
       });
 
-      // Priority 1: Japanese female voices (Nanami, Haruka, Kyoko, Mizuki, Ayumi)
-      // Priority 2: Smooth English female voices (Jenny, Aria, Zira, Samantha, Victoria)
       const selectedVoice = nonMaleVoices.find(v => 
         v.name.toLowerCase().includes('nanami') ||
         v.name.toLowerCase().includes('haruka') ||
@@ -280,10 +325,7 @@ export default function App() {
         utterance.voice = selectedVoice;
       }
 
-      // Ensure English text is pronounced clearly
       utterance.lang = 'en-US';
-
-      // Pitch (1.18) & Rate (0.98) for sweet, cheerful female voice
       utterance.pitch = 1.18;
       utterance.rate = 0.98;
 
@@ -490,84 +532,117 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen pb-20 md:pb-10 bg-gradient-to-br from-emerald-50/60 via-slate-50 to-purple-50/40 text-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100 flex">
       
-      {/* Top Header */}
-      <Header
-        activeUser={activeUser}
-        setActiveUser={setActiveUser}
-        users={users}
+      {/* Sidebar Navigation */}
+      <Sidebar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
+        activeCategory={activeCategory}
+        setActiveCategory={setActiveCategory}
+        inventorySubTab={inventorySubTab}
+        setInventorySubTab={setInventorySubTab}
+        monitoringSubTab={monitoringSubTab}
+        setMonitoringSubTab={setMonitoringSubTab}
+        activeUser={activeUser}
+        setActiveUser={setActiveUser}
         onOpenQuickLog={() => setIsQuickLogOpen(true)}
         onStartVoice={handleStartVoice}
-        logoUrl={logoUrl}
-        setLogoUrl={setLogoUrl}
         onOpenLoginModal={() => setIsLoginModalOpen(true)}
+        isCollapsed={isSidebarCollapsed}
+        setIsCollapsed={setIsSidebarCollapsed}
+        isMobileOpen={isMobileSidebarOpen}
+        setIsMobileOpen={setIsMobileSidebarOpen}
       />
 
-      {/* Main Content Area */}
-      <main className="max-w-[1700px] mx-auto px-4 sm:px-8 py-6">
+      {/* Main Wrapper Next to Sidebar */}
+      <div className={`flex-1 transition-all duration-300 flex flex-col min-w-0 ${
+        isSidebarCollapsed ? 'md:ml-20' : 'md:ml-72'
+      }`}>
         
-        {/* Module 1: Centralized Knowledge Hub */}
-        {activeTab === 'hub' && (
-          <KnowledgeHub
-            knowledgeItems={knowledgeItems}
-            seasonalGuides={seasonalGuides}
-            searchQuery={searchQuery}
-            onSpeakText={handleSpeakText}
-            onAddGuide={handleAddGuide}
-            onUpdateGuide={handleUpdateGuide}
-            onDeleteGuide={handleDeleteGuide}
-            onToggleHideGuide={handleToggleHideGuide}
-            isGuest={activeUser.isGuest}
-            activeUser={activeUser}
-            onOpenLoginModal={() => setIsLoginModalOpen(true)}
-          />
-        )}
+        {/* Top Header Bar */}
+        <Header
+          activeUser={activeUser}
+          setActiveUser={setActiveUser}
+          users={users}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          onOpenQuickLog={() => setIsQuickLogOpen(true)}
+          onStartVoice={handleStartVoice}
+          logoUrl={logoUrl}
+          setLogoUrl={setLogoUrl}
+          onOpenLoginModal={() => setIsLoginModalOpen(true)}
+          onToggleMobileSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
+        />
 
-        {/* Module 2: Record & Inventory Management System */}
-        {activeTab === 'inventory' && (
-          <RecordInventory
-            auditLogs={auditLogs}
-            inventoryItems={inventoryItems}
-            financials={financials}
-            activeUser={activeUser}
-            onOpenQuickLog={() => setIsQuickLogOpen(true)}
-            onAddTransaction={handleAddTransaction}
-            onUpdateTransaction={handleUpdateTransaction}
-            onDeleteTransaction={handleDeleteTransaction}
-            onToggleHideFinancial={handleToggleHideFinancial}
-            onAddInventoryItem={handleAddInventoryItem}
-            onUpdateInventoryItem={handleUpdateInventoryItem}
-            onDeleteInventoryItem={handleDeleteInventoryItem}
-            onToggleHideInventoryItem={handleToggleHideInventoryItem}
-            onUpdateAuditLog={handleUpdateAuditLog}
-            onDeleteAuditLog={handleDeleteAuditLog}
-            onToggleHideAuditLog={handleToggleHideAuditLog}
-            onToggleEquipmentStatus={handleToggleEquipmentStatus}
-            onOpenLoginModal={() => setIsLoginModalOpen(true)}
-          />
-        )}
+        {/* Main Content Viewport */}
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-[1800px] w-full mx-auto">
+          
+          {/* Module 1: Centralized Knowledge Hub */}
+          {activeTab === 'hub' && (
+            <KnowledgeHub
+              knowledgeItems={knowledgeItems}
+              seasonalGuides={seasonalGuides}
+              searchQuery={searchQuery}
+              onSpeakText={handleSpeakText}
+              onAddGuide={handleAddGuide}
+              onUpdateGuide={handleUpdateGuide}
+              onDeleteGuide={handleDeleteGuide}
+              onToggleHideGuide={handleToggleHideGuide}
+              isGuest={activeUser.isGuest}
+              activeUser={activeUser}
+              onOpenLoginModal={() => setIsLoginModalOpen(true)}
+              activeCategory={activeCategory}
+              setActiveCategory={setActiveCategory}
+            />
+          )}
 
-        {/* Module 3: Dynamic Monitoring Application */}
-        {activeTab === 'monitoring' && (
-          <DynamicMonitoring
-            monitoringData={monitoringData}
-            onSimulateSensorPing={handleSimulateSensorPing}
-            onAddStatusEntry={handleAddStatusEntry}
-            onUpdateStatusEntry={handleUpdateStatusEntry}
-            onDeleteStatusEntry={handleDeleteStatusEntry}
-            onToggleHideMonitoringEntry={handleToggleHideMonitoringEntry}
-            isGuest={activeUser.isGuest}
-            activeUser={activeUser}
-            onOpenLoginModal={() => setIsLoginModalOpen(true)}
-          />
-        )}
+          {/* Module 2: Record & Inventory Management System */}
+          {activeTab === 'inventory' && (
+            <RecordInventory
+              auditLogs={auditLogs}
+              inventoryItems={inventoryItems}
+              financials={financials}
+              activeUser={activeUser}
+              onOpenQuickLog={() => setIsQuickLogOpen(true)}
+              onAddTransaction={handleAddTransaction}
+              onUpdateTransaction={handleUpdateTransaction}
+              onDeleteTransaction={handleDeleteTransaction}
+              onToggleHideFinancial={handleToggleHideFinancial}
+              onAddInventoryItem={handleAddInventoryItem}
+              onUpdateInventoryItem={handleUpdateInventoryItem}
+              onDeleteInventoryItem={handleDeleteInventoryItem}
+              onToggleHideInventoryItem={handleToggleHideInventoryItem}
+              onUpdateAuditLog={handleUpdateAuditLog}
+              onDeleteAuditLog={handleDeleteAuditLog}
+              onToggleHideAuditLog={handleToggleHideAuditLog}
+              onToggleEquipmentStatus={handleToggleEquipmentStatus}
+              onOpenLoginModal={() => setIsLoginModalOpen(true)}
+              subTab={inventorySubTab}
+              setSubTab={setInventorySubTab}
+            />
+          )}
 
-      </main>
+          {/* Module 3: Dynamic Monitoring Application */}
+          {activeTab === 'monitoring' && (
+            <DynamicMonitoring
+              monitoringData={monitoringData}
+              onSimulateSensorPing={handleSimulateSensorPing}
+              onAddStatusEntry={handleAddStatusEntry}
+              onUpdateStatusEntry={handleUpdateStatusEntry}
+              onDeleteStatusEntry={handleDeleteStatusEntry}
+              onToggleHideMonitoringEntry={handleToggleHideMonitoringEntry}
+              isGuest={activeUser.isGuest}
+              activeUser={activeUser}
+              onOpenLoginModal={() => setIsLoginModalOpen(true)}
+              activeTab={monitoringSubTab}
+              setActiveTab={setMonitoringSubTab}
+            />
+          )}
+
+        </main>
+
+      </div>
 
       {/* Quick Action Modal */}
       <QuickLogModal
@@ -587,12 +662,13 @@ export default function App() {
         users={users}
       />
 
-      {/* Mobile Bottom Navigation */}
+      {/* Mobile Navigation Bar */}
       <MobileNavBar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onOpenQuickLog={() => setIsQuickLogOpen(true)}
       />
+
     </div>
   );
 }

@@ -70,7 +70,8 @@ export const INITIAL_KNOWLEDGE_BASE = [
     season: 'Dry Season (Nov - Apr)',
     mediaUrl: 'https://images.unsplash.com/photo-1563514227147-6d2ff665a6a0?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
-    image: 'https://images.unsplash.com/photo-1563514227147-6d2ff665a6a0?auto=format&fit=crop&w=800&q=80'
+    image: 'https://images.unsplash.com/photo-1563514227147-6d2ff665a6a0?auto=format&fit=crop&w=800&q=80',
+    isHidden: true
   },
   {
     id: 'kb-2',
@@ -82,7 +83,8 @@ export const INITIAL_KNOWLEDGE_BASE = [
     season: 'Post-Harvest / Summer',
     mediaUrl: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
-    image: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=800&q=80'
+    image: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=800&q=80',
+    isHidden: true
   },
   {
     id: 'kb-3',
@@ -94,7 +96,8 @@ export const INITIAL_KNOWLEDGE_BASE = [
     season: 'Year-Round',
     mediaUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
-    image: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80'
+    image: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80',
+    isHidden: true
   },
   {
     id: 'kb-4',
@@ -106,7 +109,8 @@ export const INITIAL_KNOWLEDGE_BASE = [
     season: 'Off-Season (Oct - Feb)',
     mediaUrl: 'https://images.unsplash.com/photo-1508873696983-2df5057c0256?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
-    image: 'https://images.unsplash.com/photo-1508873696983-2df5057c0256?auto=format&fit=crop&w=800&q=80'
+    image: 'https://images.unsplash.com/photo-1508873696983-2df5057c0256?auto=format&fit=crop&w=800&q=80',
+    isHidden: true
   },
 
   // --- FARMING TECHNIQUES (Ilocos Norte) ---
@@ -120,7 +124,8 @@ export const INITIAL_KNOWLEDGE_BASE = [
     season: 'Annual Rotation Cycle',
     mediaUrl: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
-    image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80'
+    image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80',
+    isHidden: true
   },
   {
     id: 'kb-6',
@@ -132,7 +137,8 @@ export const INITIAL_KNOWLEDGE_BASE = [
     season: 'Rice Season (Jul - Nov)',
     mediaUrl: 'https://images.unsplash.com/photo-1530507629858-e4977d30e9e0?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
-    image: 'https://images.unsplash.com/photo-1530507629858-e4977d30e9e0?auto=format&fit=crop&w=800&q=80'
+    image: 'https://images.unsplash.com/photo-1530507629858-e4977d30e9e0?auto=format&fit=crop&w=800&q=80',
+    isHidden: true
   },
   {
     id: 'kb-7',
@@ -144,7 +150,8 @@ export const INITIAL_KNOWLEDGE_BASE = [
     season: 'Dry Season (Nov - Mar)',
     mediaUrl: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
-    image: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?auto=format&fit=crop&w=800&q=80'
+    image: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?auto=format&fit=crop&w=800&q=80',
+    isHidden: true
   },
   {
     id: 'kb-8',
@@ -156,7 +163,8 @@ export const INITIAL_KNOWLEDGE_BASE = [
     season: 'Dry Season (Jan - May)',
     mediaUrl: 'https://images.unsplash.com/photo-1546445317-29f4545f9d52?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
-    image: 'https://images.unsplash.com/photo-1546445317-29f4545f9d52?auto=format&fit=crop&w=800&q=80'
+    image: 'https://images.unsplash.com/photo-1546445317-29f4545f9d52?auto=format&fit=crop&w=800&q=80',
+    isHidden: true
   },
 
   // --- CROPS (Ilocos Norte) ---
@@ -170,7 +178,8 @@ export const INITIAL_KNOWLEDGE_BASE = [
     season: 'November to March',
     mediaUrl: 'https://images.unsplash.com/photo-1540148426945-6cf22a6b2383?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
-    image: 'https://images.unsplash.com/photo-1540148426945-6cf22a6b2383?auto=format&fit=crop&w=800&q=80'
+    image: 'https://images.unsplash.com/photo-1540148426945-6cf22a6b2383?auto=format&fit=crop&w=800&q=80',
+    isHidden: true
   },
   {
     id: 'kb-10',
@@ -182,7 +191,8 @@ export const INITIAL_KNOWLEDGE_BASE = [
     season: 'Wet Season (June - October)',
     mediaUrl: 'https://images.unsplash.com/photo-1536657464919-892534f60d6e?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
-    image: 'https://images.unsplash.com/photo-1536657464919-892534f60d6e?auto=format&fit=crop&w=800&q=80'
+    image: 'https://images.unsplash.com/photo-1536657464919-892534f60d6e?auto=format&fit=crop&w=800&q=80',
+    isHidden: true
   },
   {
     id: 'kb-11',
@@ -194,7 +204,8 @@ export const INITIAL_KNOWLEDGE_BASE = [
     season: 'December to April',
     mediaUrl: 'https://images.unsplash.com/photo-1618512496248-a07fe83aa8cf?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
-    image: 'https://images.unsplash.com/photo-1618512496248-a07fe83aa8cf?auto=format&fit=crop&w=800&q=80'
+    image: 'https://images.unsplash.com/photo-1618512496248-a07fe83aa8cf?auto=format&fit=crop&w=800&q=80',
+    isHidden: true
   },
   {
     id: 'kb-12',
@@ -206,7 +217,8 @@ export const INITIAL_KNOWLEDGE_BASE = [
     season: 'May to October',
     mediaUrl: 'https://images.unsplash.com/photo-1527325678964-549216416a27?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
-    image: 'https://images.unsplash.com/photo-1527325678964-549216416a27?auto=format&fit=crop&w=800&q=80'
+    image: 'https://images.unsplash.com/photo-1527325678964-549216416a27?auto=format&fit=crop&w=800&q=80',
+    isHidden: true
   },
 
   // --- LIVESTOCK (Ilocos Norte) ---
@@ -220,7 +232,8 @@ export const INITIAL_KNOWLEDGE_BASE = [
     season: 'Year-Round',
     mediaUrl: 'https://images.unsplash.com/photo-1524024973431-2ad916746881?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
-    image: 'https://images.unsplash.com/photo-1524024973431-2ad916746881?auto=format&fit=crop&w=800&q=80'
+    image: 'https://images.unsplash.com/photo-1524024973431-2ad916746881?auto=format&fit=crop&w=800&q=80',
+    isHidden: true
   },
   {
     id: 'kb-14',
@@ -232,7 +245,8 @@ export const INITIAL_KNOWLEDGE_BASE = [
     season: 'Year-Round',
     mediaUrl: 'https://images.unsplash.com/photo-1570042225831-d98fa7577f1e?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
-    image: 'https://images.unsplash.com/photo-1570042225831-d98fa7577f1e?auto=format&fit=crop&w=800&q=80'
+    image: 'https://images.unsplash.com/photo-1570042225831-d98fa7577f1e?auto=format&fit=crop&w=800&q=80',
+    isHidden: true
   },
   {
     id: 'kb-15',
@@ -244,7 +258,8 @@ export const INITIAL_KNOWLEDGE_BASE = [
     season: 'Year-Round',
     mediaUrl: 'https://images.unsplash.com/photo-1560807707-8cc77767d783?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
-    image: 'https://images.unsplash.com/photo-1560807707-8cc77767d783?auto=format&fit=crop&w=800&q=80'
+    image: 'https://images.unsplash.com/photo-1560807707-8cc77767d783?auto=format&fit=crop&w=800&q=80',
+    isHidden: true
   },
   {
     id: 'kb-16',
@@ -256,11 +271,23 @@ export const INITIAL_KNOWLEDGE_BASE = [
     season: 'Year-Round',
     mediaUrl: 'https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
-    image: 'https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?auto=format&fit=crop&w=800&q=80'
+    image: 'https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?auto=format&fit=crop&w=800&q=80',
+    isHidden: true
   }
 ];
 
-export const INITIAL_SEASONAL_GUIDE = [];
+export const INITIAL_SEASONAL_GUIDE = [
+  {
+    season: 'Wet Season (June - October)',
+    focus: 'Rice Cultivation & Flood Drainage Management',
+    tasks: ['Sow NSIC Rc222 inbred rice seeds', 'Clean AWD perforated field water tubes', 'Prepare typhoon drainage channels']
+  },
+  {
+    season: 'Dry Season (November - April)',
+    focus: 'Garlic, Dragon Fruit & Onion High-Value Production',
+    tasks: ['Plant Ilocos White Garlic with rice straw mulching', 'Activate solar drip fertigation canopy', 'Operate MMSU STDC solar curing drier']
+  }
+];
 
 export const INITIAL_INVENTORY = [
   {
@@ -277,7 +304,8 @@ export const INITIAL_INVENTORY = [
     lastMaintained: '2026-07-10',
     notes: 'Low ground pressure tires suitable for wet rice paddies and dry garlic tilling.',
     mediaUrl: 'https://images.unsplash.com/photo-1530507629858-e4977d30e9e0?auto=format&fit=crop&w=800&q=80',
-    mediaType: 'image'
+    mediaType: 'image',
+    isHidden: true
   },
   {
     id: 'inv-102',
@@ -293,7 +321,8 @@ export const INITIAL_INVENTORY = [
     lastMaintained: '2026-07-15',
     notes: 'Includes 400W solar panel array, 24V DC pump, and Venturi fertilizer injector.',
     mediaUrl: 'https://images.unsplash.com/photo-1563514227147-6d2ff665a6a0?auto=format&fit=crop&w=800&q=80',
-    mediaType: 'image'
+    mediaType: 'image',
+    isHidden: true
   },
   {
     id: 'inv-103',
@@ -309,7 +338,8 @@ export const INITIAL_INVENTORY = [
     lastMaintained: '2026-07-08',
     notes: 'Capacity: 500kg garlic/onion bulbs per curing run.',
     mediaUrl: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=800&q=80',
-    mediaType: 'image'
+    mediaType: 'image',
+    isHidden: true
   },
   {
     id: 'inv-104',
@@ -325,7 +355,8 @@ export const INITIAL_INVENTORY = [
     lastMaintained: '2026-07-19',
     notes: 'High-grade disease-free seed stock prepared for November planting.',
     mediaUrl: 'https://images.unsplash.com/photo-1540148426945-6cf22a6b2383?auto=format&fit=crop&w=800&q=80',
-    mediaType: 'image'
+    mediaType: 'image',
+    isHidden: true
   }
 ];
 
@@ -343,7 +374,8 @@ export const INITIAL_AUDIT_LOGS = [
     notes: 'Applied rice straw mulching immediately after row placement to retain soil moisture.',
     verificationStatus: 'Logged & Verified',
     mediaUrl: 'https://images.unsplash.com/photo-1540148426945-6cf22a6b2383?auto=format&fit=crop&w=800&q=80',
-    mediaType: 'image'
+    mediaType: 'image',
+    isHidden: true
   },
   {
     id: 'log-102',
@@ -358,7 +390,8 @@ export const INITIAL_AUDIT_LOGS = [
     notes: 'Flow rate restored to 45 L/min. Solar battery backup charging properly.',
     verificationStatus: 'Logged & Verified',
     mediaUrl: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=800&q=80',
-    mediaType: 'image'
+    mediaType: 'image',
+    isHidden: true
   },
   {
     id: 'log-103',
@@ -373,7 +406,8 @@ export const INITIAL_AUDIT_LOGS = [
     notes: 'All animals in healthy condition. 3 does scheduled for kid delivery next month.',
     verificationStatus: 'Logged & Verified',
     mediaUrl: 'https://images.unsplash.com/photo-1524024973431-2ad916746881?auto=format&fit=crop&w=800&q=80',
-    mediaType: 'image'
+    mediaType: 'image',
+    isHidden: true
   },
   {
     id: 'log-104',
@@ -388,7 +422,8 @@ export const INITIAL_AUDIT_LOGS = [
     notes: 'Dispatched to Laoag City Central Market cooperative distributor.',
     verificationStatus: 'Logged & Verified',
     mediaUrl: 'https://images.unsplash.com/photo-1527325678964-549216416a27?auto=format&fit=crop&w=800&q=80',
-    mediaType: 'image'
+    mediaType: 'image',
+    isHidden: true
   }
 ];
 
@@ -411,7 +446,8 @@ export const INITIAL_FINANCIALS = {
       category: 'Crop Sales',
       loggedBy: 'Nythan Bagasani',
       mediaUrl: 'https://images.unsplash.com/photo-1540148426945-6cf22a6b2383?auto=format&fit=crop&w=800&q=80',
-      mediaType: 'image'
+      mediaType: 'image',
+      isHidden: true
     },
     {
       id: 'fin-102',
@@ -422,7 +458,8 @@ export const INITIAL_FINANCIALS = {
       category: 'Equipment Maintenance',
       loggedBy: 'Nathaniel Bonifacio',
       mediaUrl: 'https://images.unsplash.com/photo-1563514227147-6d2ff665a6a0?auto=format&fit=crop&w=800&q=80',
-      mediaType: 'image'
+      mediaType: 'image',
+      isHidden: true
     },
     {
       id: 'fin-103',
@@ -433,7 +470,8 @@ export const INITIAL_FINANCIALS = {
       category: 'Livestock Sales',
       loggedBy: 'Nythan Bagasani',
       mediaUrl: 'https://images.unsplash.com/photo-1560807707-8cc77767d783?auto=format&fit=crop&w=800&q=80',
-      mediaType: 'image'
+      mediaType: 'image',
+      isHidden: true
     },
     {
       id: 'fin-104',
@@ -444,7 +482,8 @@ export const INITIAL_FINANCIALS = {
       category: 'Fertilizer & Seeds',
       loggedBy: 'JBenedict Alberto',
       mediaUrl: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80',
-      mediaType: 'image'
+      mediaType: 'image',
+      isHidden: true
     }
   ]
 };
@@ -462,7 +501,8 @@ export const INITIAL_MONITORING_SENSORS = {
       stage: 'Vegetative Tillering',
       lastUpdated: '2026-07-22',
       mediaUrl: 'https://images.unsplash.com/photo-1536657464919-892534f60d6e?auto=format&fit=crop&w=800&q=80',
-      mediaType: 'image'
+      mediaType: 'image',
+      isHidden: true
     },
     {
       id: 'mon-102',
@@ -475,7 +515,8 @@ export const INITIAL_MONITORING_SENSORS = {
       stage: 'Land Prep & Bedding',
       lastUpdated: '2026-07-22',
       mediaUrl: 'https://images.unsplash.com/photo-1540148426945-6cf22a6b2383?auto=format&fit=crop&w=800&q=80',
-      mediaType: 'image'
+      mediaType: 'image',
+      isHidden: true
     },
     {
       id: 'mon-103',
@@ -488,7 +529,8 @@ export const INITIAL_MONITORING_SENSORS = {
       stage: 'Fruit Maturation',
       lastUpdated: '2026-07-21',
       mediaUrl: 'https://images.unsplash.com/photo-1527325678964-549216416a27?auto=format&fit=crop&w=800&q=80',
-      mediaType: 'image'
+      mediaType: 'image',
+      isHidden: true
     },
     {
       id: 'mon-104',
@@ -501,7 +543,8 @@ export const INITIAL_MONITORING_SENSORS = {
       stage: 'Bulbing Stage',
       lastUpdated: '2026-07-20',
       mediaUrl: 'https://images.unsplash.com/photo-1618512496248-a07fe83aa8cf?auto=format&fit=crop&w=800&q=80',
-      mediaType: 'image'
+      mediaType: 'image',
+      isHidden: true
     }
   ],
   equipment: [
@@ -514,7 +557,8 @@ export const INITIAL_MONITORING_SENSORS = {
       details: 'Solar PV output at 390W peak. Water pressure steady at 2.2 bar across drip lines.',
       lastUpdated: '2026-07-22',
       mediaUrl: 'https://images.unsplash.com/photo-1563514227147-6d2ff665a6a0?auto=format&fit=crop&w=800&q=80',
-      mediaType: 'image'
+      mediaType: 'image',
+      isHidden: true
     },
     {
       id: 'mon-202',
@@ -525,7 +569,8 @@ export const INITIAL_MONITORING_SENSORS = {
       details: 'Undergoing scheduled oil change and blade sharpening prior to garlic land prep.',
       lastUpdated: '2026-07-21',
       mediaUrl: 'https://images.unsplash.com/photo-1530507629858-e4977d30e9e0?auto=format&fit=crop&w=800&q=80',
-      mediaType: 'image'
+      mediaType: 'image',
+      isHidden: true
     },
     {
       id: 'mon-203',
@@ -536,7 +581,8 @@ export const INITIAL_MONITORING_SENSORS = {
       details: 'Solar collector fan running automatically. Interior humidity at 32%.',
       lastUpdated: '2026-07-22',
       mediaUrl: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=800&q=80',
-      mediaType: 'image'
+      mediaType: 'image',
+      isHidden: true
     }
   ],
   livestock: [
@@ -549,7 +595,8 @@ export const INITIAL_MONITORING_SENSORS = {
       details: '28 head of upgraded native goats. Daily forage supplementation with ipil-ipil and corn silage.',
       lastUpdated: '2026-07-22',
       mediaUrl: 'https://images.unsplash.com/photo-1524024973431-2ad916746881?auto=format&fit=crop&w=800&q=80',
-      mediaType: 'image'
+      mediaType: 'image',
+      isHidden: true
     },
     {
       id: 'mon-302',
@@ -560,7 +607,8 @@ export const INITIAL_MONITORING_SENSORS = {
       details: '12 lactating riverine carabaos. Morning milk production averaged 7.5 liters/head.',
       lastUpdated: '2026-07-22',
       mediaUrl: 'https://images.unsplash.com/photo-1560807707-8cc77767d783?auto=format&fit=crop&w=800&q=80',
-      mediaType: 'image'
+      mediaType: 'image',
+      isHidden: true
     },
     {
       id: 'mon-303',
@@ -571,7 +619,8 @@ export const INITIAL_MONITORING_SENSORS = {
       details: '15 head of Brahman cross cattle undergoing 90-day corn silage weight gain program.',
       lastUpdated: '2026-07-20',
       mediaUrl: 'https://images.unsplash.com/photo-1570042225831-d98fa7577f1e?auto=format&fit=crop&w=800&q=80',
-      mediaType: 'image'
+      mediaType: 'image',
+      isHidden: true
     },
     {
       id: 'mon-304',
@@ -582,7 +631,8 @@ export const INITIAL_MONITORING_SENSORS = {
       details: '60 native hens and roosters in free-range paddock. Egg production steady.',
       lastUpdated: '2026-07-21',
       mediaUrl: 'https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?auto=format&fit=crop&w=800&q=80',
-      mediaType: 'image'
+      mediaType: 'image',
+      isHidden: true
     }
   ]
 };

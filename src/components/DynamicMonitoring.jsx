@@ -14,9 +14,13 @@ export default function DynamicMonitoring({
   onToggleHideMonitoringEntry,
   isGuest,
   activeUser,
-  onOpenLoginModal
+  onOpenLoginModal,
+  activeTab: parentSubTab,
+  setActiveTab: setParentSubTab
 }) {
-  const [activeTab, setActiveTab] = useState('crops'); // 'crops', 'equipment', 'livestock'
+  const [localTab, setLocalTab] = useState('crops');
+  const activeTab = parentSubTab || localTab;
+  const setActiveTab = setParentSubTab || setLocalTab; // 'crops', 'equipment', 'livestock'
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingEntry, setEditingEntry] = useState(null);
 
@@ -33,9 +37,11 @@ export default function DynamicMonitoring({
   const [mediaUrl, setMediaUrl] = useState('');
   const [mediaType, setMediaType] = useState('image');
 
-  const displayFields = (monitoringData.fields || []).filter(f => isSuperAdmin || !f.isHidden);
-  const displayEquipment = (monitoringData.equipment || []).filter(e => isSuperAdmin || !e.isHidden);
-  const displayLivestock = (monitoringData.livestock || []).filter(l => isSuperAdmin || !l.isHidden);
+  const [showHiddenItems, setShowHiddenItems] = useState(false);
+
+  const displayFields = (monitoringData.fields || []).filter(f => showHiddenItems || !f.isHidden);
+  const displayEquipment = (monitoringData.equipment || []).filter(e => showHiddenItems || !e.isHidden);
+  const displayLivestock = (monitoringData.livestock || []).filter(l => showHiddenItems || !l.isHidden);
 
   const resetForm = () => {
     setName('');
@@ -96,7 +102,7 @@ export default function DynamicMonitoring({
         lastUpdated: new Date().toLocaleDateString(),
         mediaUrl,
         mediaType,
-        isHidden: editingEntry ? editingEntry.isHidden : false
+        isHidden: editingEntry ? (editingEntry.isHidden ?? false) : false
       }
     };
 

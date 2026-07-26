@@ -17,9 +17,13 @@ export default function KnowledgeHub({
   onToggleHideGuide,
   isGuest,
   activeUser,
-  onOpenLoginModal
+  onOpenLoginModal,
+  activeCategory: parentCategory,
+  setActiveCategory: setParentCategory
 }) {
-  const [activeCategory, setActiveCategory] = useState('all');
+  const [localCategory, setLocalCategory] = useState('all');
+  const activeCategory = parentCategory || localCategory;
+  const setActiveCategory = setParentCategory || setLocalCategory;
   const [selectedItem, setSelectedItem] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
@@ -45,8 +49,10 @@ export default function KnowledgeHub({
     }
   };
 
+  const [showHiddenItems, setShowHiddenItems] = useState(false);
+
   const filteredItems = knowledgeItems.filter(item => {
-    if (item.isHidden && !isSuperAdmin) return false;
+    if (item.isHidden && !showHiddenItems) return false;
     const matchesCategory = activeCategory === 'all' || item.category === activeCategory;
     const matchesSearch = !searchQuery || 
       item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -106,7 +112,7 @@ export default function KnowledgeHub({
       mediaUrl: formMediaUrl,
       mediaType: formMediaType,
       image: formMediaUrl || 'https://images.unsplash.com/photo-1592417817098-8f3d6ef23a28?auto=format&fit=crop&w=600&q=80',
-      isHidden: editingItem ? editingItem.isHidden : false
+      isHidden: editingItem ? (editingItem.isHidden ?? false) : false
     };
 
     if (editingItem) {

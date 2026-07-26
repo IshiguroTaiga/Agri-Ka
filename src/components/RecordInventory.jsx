@@ -24,9 +24,13 @@ export default function RecordInventory({
   onDeleteAuditLog,
   onToggleHideAuditLog,
   onToggleEquipmentStatus,
-  onOpenLoginModal
+  onOpenLoginModal,
+  subTab: parentSubTab,
+  setSubTab: setParentSubTab
 }) {
-  const [subTab, setSubTab] = useState('logs'); // 'logs', 'inventory', 'financials'
+  const [localSubTab, setLocalSubTab] = useState('logs');
+  const subTab = parentSubTab || localSubTab;
+  const setSubTab = setParentSubTab || setLocalSubTab;
   const [inventorySearch, setInventorySearch] = useState('');
 
   const isSuperAdmin = activeUser?.roleCode === 'super_admin' || activeUser?.role === 'Super Admin' || activeUser?.username?.toLowerCase() === 'ishi';
@@ -75,13 +79,15 @@ export default function RecordInventory({
 
   const isGuest = activeUser?.isGuest;
 
-  const displayLogs = auditLogs.filter(log => isSuperAdmin || !log.isHidden);
+  const [showHiddenItems, setShowHiddenItems] = useState(false);
+
+  const displayLogs = auditLogs.filter(log => showHiddenItems || !log.isHidden);
   const displayInventory = inventoryItems.filter(item => {
-    if (item.isHidden && !isSuperAdmin) return false;
+    if (item.isHidden && !showHiddenItems) return false;
     return item.name.toLowerCase().includes(inventorySearch.toLowerCase()) ||
            (item.code && item.code.toLowerCase().includes(inventorySearch.toLowerCase()));
   });
-  const displayFinancials = financials.transactions.filter(t => isSuperAdmin || !t.isHidden);
+  const displayFinancials = financials.transactions.filter(t => showHiddenItems || !t.isHidden);
 
   const handleOpenAddLog = () => {
     if (isGuest) onOpenLoginModal();
@@ -128,7 +134,7 @@ export default function RecordInventory({
       loggedBy: activeUser.name,
       mediaUrl: finMediaUrl,
       mediaType: finMediaType,
-      isHidden: editingFin ? editingFin.isHidden : false
+      isHidden: editingFin ? (editingFin.isHidden ?? false) : false
     };
 
     if (editingFin) {
@@ -199,7 +205,7 @@ export default function RecordInventory({
       notes: invNotes,
       mediaUrl: invMediaUrl,
       mediaType: invMediaType,
-      isHidden: editingInv ? editingInv.isHidden : false
+      isHidden: editingInv ? (editingInv.isHidden ?? false) : false
     };
 
     if (editingInv) {
@@ -221,7 +227,7 @@ export default function RecordInventory({
   };
 
   // --- Audit Log Handlers ---
-  const handleOpenLogEdit = (log) => {
+  const handleOpenLogEditModal = (log) => {
     if (isGuest) {
       onOpenLoginModal();
       return;
@@ -251,7 +257,8 @@ export default function RecordInventory({
       quantityDetails: logQtyDetails,
       notes: logNotes,
       mediaUrl: logMediaUrl,
-      mediaType: logMediaType
+      mediaType: logMediaType,
+      isHidden: editingLog ? (editingLog.isHidden ?? false) : false
     };
 
     onUpdateAuditLog(updatedLog);

@@ -164,15 +164,15 @@ export const initDb = async () => {
 
     await safeAddColumn('audit_logs', 'media_url TEXT');
     await safeAddColumn('audit_logs', 'media_type TEXT');
-    await safeAddColumn('audit_logs', 'is_hidden INTEGER DEFAULT 0');
+    await safeAddColumn('audit_logs', 'is_hidden INTEGER DEFAULT 1');
     await safeAddColumn('inventory', 'media_url TEXT');
     await safeAddColumn('inventory', 'media_type TEXT');
-    await safeAddColumn('inventory', 'is_hidden INTEGER DEFAULT 0');
+    await safeAddColumn('inventory', 'is_hidden INTEGER DEFAULT 1');
     await safeAddColumn('financials', 'media_url TEXT');
     await safeAddColumn('financials', 'media_type TEXT');
-    await safeAddColumn('financials', 'is_hidden INTEGER DEFAULT 0');
-    await safeAddColumn('knowledge_hub', 'is_hidden INTEGER DEFAULT 0');
-    await safeAddColumn('monitoring_entries', 'is_hidden INTEGER DEFAULT 0');
+    await safeAddColumn('financials', 'is_hidden INTEGER DEFAULT 1');
+    await safeAddColumn('knowledge_hub', 'is_hidden INTEGER DEFAULT 1');
+    await safeAddColumn('monitoring_entries', 'is_hidden INTEGER DEFAULT 1');
 
     console.log('[SQL Database] Schema verified & initialized successfully.');
 
