@@ -91,64 +91,59 @@ export default function App() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [showLogoModal, setShowLogoModal] = useState(false);
 
-  // Fetch initial data from SQL Database & helper
+  // Fetch initial data from SQL Database & helper (with state equality guard)
   const fetchSqlData = async () => {
-    const kb = await getKnowledgeItems();
-    if (kb && Array.isArray(kb)) {
-      setKnowledgeItems(kb);
-    }
+    try {
+      const kb = await getKnowledgeItems();
+      if (kb && Array.isArray(kb)) {
+        setKnowledgeItems(prev => JSON.stringify(prev) === JSON.stringify(kb) ? prev : kb);
+      }
 
-    const inv = await getInventoryItems();
-    if (inv && Array.isArray(inv)) {
-      setInventoryItems(inv);
-    }
+      const inv = await getInventoryItems();
+      if (inv && Array.isArray(inv)) {
+        setInventoryItems(prev => JSON.stringify(prev) === JSON.stringify(inv) ? prev : inv);
+      }
 
-    const logs = await getAuditLogs();
-    if (logs && Array.isArray(logs)) {
-      setAuditLogs(logs);
-    }
+      const logs = await getAuditLogs();
+      if (logs && Array.isArray(logs)) {
+        setAuditLogs(prev => JSON.stringify(prev) === JSON.stringify(logs) ? prev : logs);
+      }
 
-    const fins = await getFinancials();
-    if (fins && Array.isArray(fins)) {
-      let rev = 0;
-      let exp = 0;
-      fins.forEach(t => {
-        if (t.type === 'Income') rev += Number(t.amount || 0);
-        else exp += Number(t.amount || 0);
-      });
-      setFinancials({
-        totalBudget: 500000,
-        currency: '₱',
-        summary: {
-          totalRevenue: rev,
-          totalExpenses: exp,
-          netProfit: rev - exp,
-          projectedHarvestValue: 350000
-        },
-        transactions: fins
-      });
-    }
+      const fins = await getFinancials();
+      if (fins && Array.isArray(fins)) {
+        let rev = 0;
+        let exp = 0;
+        fins.forEach(t => {
+          if (t.type === 'Income') rev += Number(t.amount || 0);
+          else exp += Number(t.amount || 0);
+        });
+        const newFinObj = {
+          totalBudget: 500000,
+          currency: '₱',
+          summary: {
+            totalRevenue: rev,
+            totalExpenses: exp,
+            netProfit: rev - exp,
+            projectedHarvestValue: 350000
+          },
+          transactions: fins
+        };
+        setFinancials(prev => JSON.stringify(prev) === JSON.stringify(newFinObj) ? prev : newFinObj);
+      }
 
-    const mon = await getMonitoringEntries();
-    if (mon && (mon.fields !== undefined || mon.equipment !== undefined || mon.livestock !== undefined)) {
-      setMonitoringData(mon);
-    }
+      const mon = await getMonitoringEntries();
+      if (mon && (mon.fields !== undefined || mon.equipment !== undefined || mon.livestock !== undefined)) {
+        setMonitoringData(prev => JSON.stringify(prev) === JSON.stringify(mon) ? prev : mon);
+      }
+    } catch (e) {}
   };
 
   useEffect(() => {
     fetchSqlData();
   }, []);
 
-  // Instant Cross-Tab Sync via BroadcastChannel & window storage event
+  // Instant Cross-Tab Sync via window storage event
   useEffect(() => {
-    let syncChannel;
-    try {
-      syncChannel = new BroadcastChannel('agri_ka_sync');
-      syncChannel.onmessage = () => {
-        fetchSqlData();
-      };
-    } catch (e) {}
-
     const handleStorageChange = () => {
       try {
         const savedKb = localStorage.getItem('agri_knowledge');
@@ -167,12 +162,11 @@ export default function App() {
     window.addEventListener('storage', handleStorageChange);
 
     return () => {
-      if (syncChannel) syncChannel.close();
       window.removeEventListener('storage', handleStorageChange);
     };
   }, []);
 
-  // Real-time EventSource Listener (SSE) & Polling Fallback
+  // Real-time EventSource Listener (SSE) & Polling Fallback (30s silent interval)
   useEffect(() => {
     let eventSource;
 
@@ -185,22 +179,22 @@ export default function App() {
         };
 
         eventSource.onmessage = (e) => {
-          console.log('[Real-Time Sync] Received server change event:', e.data);
           fetchSqlData();
         };
 
         eventSource.onerror = (err) => {
           if (eventSource) eventSource.close();
-          setTimeout(connectSSE, 2000);
+          setTimeout(connectSSE, 5000);
         };
       } catch (err) {}
     };
 
     connectSSE();
 
+    // Silent 30s background heartbeat poll
     const pollInterval = setInterval(() => {
       fetchSqlData();
-    }, 1500);
+    }, 30000);
 
     return () => {
       if (eventSource) eventSource.close();
