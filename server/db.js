@@ -80,7 +80,8 @@ export const initDb = async () => {
         notes TEXT,
         verification_status TEXT,
         media_url TEXT,
-        media_type TEXT
+        media_type TEXT,
+        is_hidden INTEGER DEFAULT 1
       )
     `);
 
@@ -100,7 +101,8 @@ export const initDb = async () => {
         last_maintained TEXT,
         notes TEXT,
         media_url TEXT,
-        media_type TEXT
+        media_type TEXT,
+        is_hidden INTEGER DEFAULT 1
       )
     `);
 
@@ -115,7 +117,8 @@ export const initDb = async () => {
         category TEXT NOT NULL,
         logged_by TEXT NOT NULL,
         media_url TEXT,
-        media_type TEXT
+        media_type TEXT,
+        is_hidden INTEGER DEFAULT 1
       )
     `);
 
@@ -131,6 +134,7 @@ export const initDb = async () => {
         season TEXT,
         media_url TEXT,
         media_type TEXT,
+        is_hidden INTEGER DEFAULT 1,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     `);
@@ -149,6 +153,7 @@ export const initDb = async () => {
         last_updated TEXT,
         media_url TEXT,
         media_type TEXT,
+        is_hidden INTEGER DEFAULT 1,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     `);
@@ -287,8 +292,8 @@ export const initDb = async () => {
       ];
       for (const k of kbSeed) {
         await runQuery(
-          `INSERT INTO knowledge_hub (id, category, title, summary, description, tags, season, media_url, media_type)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          `INSERT INTO knowledge_hub (id, category, title, summary, description, tags, season, media_url, media_type, is_hidden)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
           k
         );
       }
@@ -306,8 +311,8 @@ export const initDb = async () => {
       ];
       for (const i of invSeed) {
         await runQuery(
-          `INSERT INTO inventory (id, code, name, category, status, location, assigned_to, stock_qty, unit, min_threshold, last_maintained, notes, media_url, media_type)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          `INSERT INTO inventory (id, code, name, category, status, location, assigned_to, stock_qty, unit, min_threshold, last_maintained, notes, media_url, media_type, is_hidden)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
           i
         );
       }
@@ -325,8 +330,8 @@ export const initDb = async () => {
       ];
       for (const l of logSeed) {
         await runQuery(
-          `INSERT INTO audit_logs (id, timestamp, user, user_role, action_type, item_tagged, category, location, quantity_details, notes, verification_status, media_url, media_type)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          `INSERT INTO audit_logs (id, timestamp, user, user_role, action_type, item_tagged, category, location, quantity_details, notes, verification_status, media_url, media_type, is_hidden)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
           l
         );
       }
@@ -344,8 +349,8 @@ export const initDb = async () => {
       ];
       for (const f of finSeed) {
         await runQuery(
-          `INSERT INTO financials (id, date, title, type, amount, category, logged_by, media_url, media_type)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          `INSERT INTO financials (id, date, title, type, amount, category, logged_by, media_url, media_type, is_hidden)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
           f
         );
       }
@@ -370,8 +375,8 @@ export const initDb = async () => {
       ];
       for (const m of monSeed) {
         await runQuery(
-          `INSERT INTO monitoring_entries (id, type, name, location, status, details, crop, stage, last_updated, media_url, media_type)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          `INSERT INTO monitoring_entries (id, type, name, location, status, details, crop, stage, last_updated, media_url, media_type, is_hidden)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
           m
         );
       }
