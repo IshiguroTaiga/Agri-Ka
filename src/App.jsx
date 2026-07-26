@@ -89,6 +89,7 @@ export default function App() {
   // Modals State
   const [isQuickLogOpen, setIsQuickLogOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [showLogoModal, setShowLogoModal] = useState(false);
 
   // Fetch initial data from SQL Database & helper
   const fetchSqlData = async () => {
@@ -553,6 +554,8 @@ export default function App() {
         setIsCollapsed={setIsSidebarCollapsed}
         isMobileOpen={isMobileSidebarOpen}
         setIsMobileOpen={setIsMobileSidebarOpen}
+        logoUrl={logoUrl}
+        onOpenLogoModal={() => setShowLogoModal(true)}
       />
 
       {/* Main Wrapper Next to Sidebar */}
@@ -573,6 +576,7 @@ export default function App() {
           setLogoUrl={setLogoUrl}
           onOpenLoginModal={() => setIsLoginModalOpen(true)}
           onToggleMobileSidebar={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
+          onOpenLogoModal={() => setShowLogoModal(true)}
         />
 
         {/* Main Content Viewport */}
@@ -661,6 +665,82 @@ export default function App() {
         onLoginSuccess={handleLoginSuccess}
         users={users}
       />
+
+      {/* Logo Upload Modal */}
+      {showLogoModal && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-6 text-slate-200 shadow-2xl space-y-4">
+            <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+              <h3 className="font-bold text-lg text-white flex items-center gap-2">
+                <span>🖼️ Update System Logo</span>
+              </h3>
+              <button 
+                onClick={() => setShowLogoModal(false)} 
+                className="text-slate-400 hover:text-white p-1 rounded-full bg-slate-800"
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-400">
+              Choose a custom emblem/logo image from your computer to update the system branding across the sidebar and header.
+            </p>
+
+            <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex items-center justify-center">
+              <div className="w-20 h-20 rounded-2xl bg-slate-900 p-1 border border-purple-500/60 flex items-center justify-center overflow-hidden">
+                <img 
+                  src={logoUrl || '/THerta_LogoWFrame.png'} 
+                  alt="Current Logo" 
+                  className="w-full h-full object-contain"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = '/THerta_LogoWFrame.png';
+                  }}
+                />
+              </div>
+            </div>
+
+            <input 
+              type="file" 
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files[0];
+                if (file) {
+                  const reader = new FileReader();
+                  reader.onloadend = () => {
+                    setLogoUrl(reader.result);
+                    try { localStorage.setItem('agri_logo_url', reader.result); } catch (err) {}
+                    setShowLogoModal(false);
+                  };
+                  reader.readAsDataURL(file);
+                }
+              }}
+              className="w-full text-xs text-slate-300 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-gradient-to-r file:from-emerald-600 file:to-purple-600 file:text-white hover:file:from-emerald-500 hover:file:to-purple-500 cursor-pointer"
+            />
+
+            <div className="flex justify-between items-center pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setLogoUrl('/THerta_LogoWFrame.png');
+                  try { localStorage.removeItem('agri_logo_url'); } catch (err) {}
+                  setShowLogoModal(false);
+                }}
+                className="text-xs text-slate-400 hover:text-amber-400 font-semibold underline cursor-pointer"
+              >
+                Reset to Default
+              </button>
+
+              <button 
+                onClick={() => setShowLogoModal(false)}
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-bold rounded-xl text-slate-300 cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Mobile Navigation Bar */}
       <MobileNavBar

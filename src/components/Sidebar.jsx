@@ -22,7 +22,9 @@ export default function Sidebar({
   isCollapsed,
   setIsCollapsed,
   isMobileOpen,
-  setIsMobileOpen
+  setIsMobileOpen,
+  logoUrl,
+  onOpenLogoModal
 }) {
   const [openDropdowns, setOpenDropdowns] = useState({
     hub: true,
@@ -87,23 +89,36 @@ export default function Sidebar({
           <div className="p-4 flex items-center justify-between">
             
             {/* Logo Branding */}
-            <div 
-              onClick={() => { setActiveTab('hub'); setActiveCategory('all'); }}
-              className="flex items-center space-x-3 cursor-pointer group overflow-hidden"
-            >
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 via-purple-600 to-indigo-600 p-0.5 shadow-lg shadow-emerald-950/50 shrink-0">
-                <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center text-lg">
-                  🌾
+            <div className="flex items-center space-x-3 group overflow-hidden">
+              <div 
+                onClick={onOpenLogoModal}
+                className="w-10 h-10 rounded-xl bg-slate-950 p-0.5 border border-purple-500/60 shadow-lg shrink-0 cursor-pointer relative group/logo overflow-hidden"
+                title="Click to change farm system logo image"
+              >
+                <img 
+                  src={logoUrl || '/THerta_LogoWFrame.png'} 
+                  alt="AGRI-KA Logo" 
+                  className="w-full h-full object-contain group-hover/logo:scale-105 transition-transform duration-300"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = '/THerta_LogoWFrame.png';
+                  }}
+                />
+                <div className="absolute inset-0 bg-black/60 rounded-xl opacity-0 group-hover/logo:opacity-100 flex items-center justify-center text-white text-[9px] font-bold transition-opacity">
+                  Edit
                 </div>
               </div>
 
               {!isCollapsed && (
-                <div className="transition-opacity duration-300">
+                <div 
+                  onClick={() => { setActiveTab('hub'); setActiveCategory('all'); }}
+                  className="transition-opacity duration-300 cursor-pointer"
+                >
                   <h1 className="font-black text-lg tracking-tight text-white flex items-center gap-1.5 leading-none">
                     <span>AGRI-KA</span>
                     <span className="text-xs bg-gradient-to-r from-emerald-400 to-purple-400 bg-clip-text text-transparent uppercase font-extrabold">HUB</span>
                   </h1>
-                  <p className="text-[10px] text-emerald-400 font-semibold mt-0.5">Ilocos Norte DOST</p>
+                  <p className="text-[10px] text-emerald-400 font-semibold mt-0.5">Ilocos Norte Farm Hub</p>
                 </div>
               )}
             </div>

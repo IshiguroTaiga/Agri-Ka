@@ -55,7 +55,7 @@ export default function Header({
         </div>
 
         <div className="flex items-center space-x-3 text-[11px]">
-          <span className="text-slate-400 font-medium hidden lg:inline">📍 Ilocos Norte DOST Multi-Farm Hub</span>
+          <span className="text-slate-400 font-medium hidden lg:inline">📍 Ilocos Norte Multi-Farm Hub</span>
           {isSuperAdmin && (
             <span className="bg-purple-900/80 text-amber-300 px-2 py-0.5 rounded-full font-extrabold border border-amber-400/40 flex items-center gap-1">
               <Sparkles className="w-3 h-3 text-amber-300" />
@@ -78,7 +78,7 @@ export default function Header({
               <div className="w-10 h-10 rounded-xl bg-slate-950 p-0.5 border border-purple-500/60 shadow-md flex items-center justify-center overflow-hidden">
                 <img 
                   src={logoUrl || '/THerta_LogoWFrame.png'} 
-                  alt="THerta Logo" 
+                  alt="AGRI-KA Logo" 
                   className="w-full h-full object-contain"
                   onError={(e) => {
                     e.target.onerror = null;
@@ -89,7 +89,7 @@ export default function Header({
             </div>
             <div>
               <h1 className="text-base font-black text-white leading-none">AGRI-KA</h1>
-              <p className="text-[10px] text-emerald-400 font-semibold">DOST Replica</p>
+              <p className="text-[10px] text-emerald-400 font-semibold">Smart Farm Hub</p>
             </div>
           </div>
 
