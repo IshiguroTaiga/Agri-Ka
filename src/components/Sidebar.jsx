@@ -39,6 +39,14 @@ export default function Sidebar({
     setOpenDropdowns(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
+  const handleHeaderClick = (key, tabName) => {
+    if (isCollapsed) {
+      setActiveTab(tabName);
+    } else {
+      toggleDropdown(key);
+    }
+  };
+
   const handleSelectCategory = (tab, cat) => {
     setActiveTab(tab);
     if (tab === 'hub') {
@@ -149,10 +157,7 @@ export default function Sidebar({
           {/* CATEGORY 1: KNOWLEDGE HUB */}
           <div className="space-y-1">
             <button
-              onClick={() => {
-                setActiveTab('hub');
-                toggleDropdown('hub');
-              }}
+              onClick={() => handleHeaderClick('hub', 'hub')}
               className={`w-full px-3 py-2.5 rounded-xl font-bold text-xs flex items-center justify-between transition-all cursor-pointer ${
                 activeTab === 'hub'
                   ? 'bg-gradient-to-r from-emerald-900/60 to-emerald-950/80 text-emerald-300 border border-emerald-500/30 shadow-md'
@@ -236,10 +241,7 @@ export default function Sidebar({
           {/* CATEGORY 2: RECORD & INVENTORY SYSTEM */}
           <div className="space-y-1">
             <button
-              onClick={() => {
-                setActiveTab('inventory');
-                toggleDropdown('inventory');
-              }}
+              onClick={() => handleHeaderClick('inventory', 'inventory')}
               className={`w-full px-3 py-2.5 rounded-xl font-bold text-xs flex items-center justify-between transition-all cursor-pointer ${
                 activeTab === 'inventory'
                   ? 'bg-gradient-to-r from-purple-900/60 to-purple-950/80 text-purple-300 border border-purple-500/30 shadow-md'
@@ -302,10 +304,7 @@ export default function Sidebar({
           {/* CATEGORY 3: DYNAMIC MONITORING */}
           <div className="space-y-1">
             <button
-              onClick={() => {
-                setActiveTab('monitoring');
-                toggleDropdown('monitoring');
-              }}
+              onClick={() => handleHeaderClick('monitoring', 'monitoring')}
               className={`w-full px-3 py-2.5 rounded-xl font-bold text-xs flex items-center justify-between transition-all cursor-pointer ${
                 activeTab === 'monitoring'
                   ? 'bg-gradient-to-r from-teal-900/60 to-teal-950/80 text-teal-300 border border-teal-500/30 shadow-md'
