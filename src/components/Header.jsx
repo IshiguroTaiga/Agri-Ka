@@ -12,7 +12,8 @@ export default function Header({
   logoUrl, 
   setLogoUrl,
   onOpenLoginModal,
-  onToggleMobileSidebar
+  onToggleMobileSidebar,
+  onOpenLogoModal
 }) {
   const [showLogoModal, setShowLogoModal] = useState(false);
 
