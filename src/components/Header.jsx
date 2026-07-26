@@ -73,7 +73,7 @@ export default function Header({
           <div className="flex items-center space-x-3 md:hidden">
             <div 
               className="relative cursor-pointer shrink-0"
-              onClick={() => setShowLogoModal(true)}
+              onClick={onOpenLogoModal}
             >
               <div className="w-10 h-10 rounded-xl bg-slate-950 p-0.5 border border-purple-500/60 shadow-md flex items-center justify-center overflow-hidden">
                 <img 
