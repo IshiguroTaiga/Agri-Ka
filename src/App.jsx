@@ -166,35 +166,37 @@ export default function App() {
     };
   }, []);
 
-  // Real-time EventSource Listener (SSE) & Polling Fallback (30s silent interval)
+  // Real-time EventSource Listener (SSE) & Polling Fallback (2.5s fast interval)
   useEffect(() => {
     let eventSource;
 
     const connectSSE = () => {
       try {
-        eventSource = new EventSource('/api/events');
+        const apiBase = import.meta.env.VITE_API_URL || '/api';
+        eventSource = new EventSource(`${apiBase}/events`);
 
         eventSource.onopen = () => {
           console.log('[Real-Time Sync] SSE connected successfully.');
         };
 
         eventSource.onmessage = (e) => {
+          console.log('[Real-Time Sync] SSE message received:', e.data);
           fetchSqlData();
         };
 
         eventSource.onerror = (err) => {
           if (eventSource) eventSource.close();
-          setTimeout(connectSSE, 5000);
+          setTimeout(connectSSE, 3000);
         };
       } catch (err) {}
     };
 
     connectSSE();
 
-    // Silent 30s background heartbeat poll
+    // Fast 2.5s background sync for multi-user real-time reflection
     const pollInterval = setInterval(() => {
       fetchSqlData();
-    }, 30000);
+    }, 2500);
 
     return () => {
       if (eventSource) eventSource.close();
