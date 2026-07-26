@@ -99,7 +99,7 @@ export default function Sidebar({
             {/* Logo Branding */}
             <div className="flex items-center space-x-3 group overflow-hidden">
               <div 
-                onClick={onOpenLogoModal}
+                onClick={() => onOpenLogoModal && onOpenLogoModal()}
                 className="w-10 h-10 rounded-xl bg-slate-950 p-0.5 border border-purple-500/60 shadow-lg shrink-0 cursor-pointer relative group/logo overflow-hidden"
                 title="Click to change farm system logo image"
               >
