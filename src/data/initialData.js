@@ -71,7 +71,7 @@ export const INITIAL_KNOWLEDGE_BASE = [
     mediaUrl: 'https://images.unsplash.com/photo-1563514227147-6d2ff665a6a0?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
     image: 'https://images.unsplash.com/photo-1563514227147-6d2ff665a6a0?auto=format&fit=crop&w=800&q=80',
-    isHidden: true
+    isHidden: false
   },
   {
     id: 'kb-2',
@@ -84,7 +84,7 @@ export const INITIAL_KNOWLEDGE_BASE = [
     mediaUrl: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
     image: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=800&q=80',
-    isHidden: true
+    isHidden: false
   },
   {
     id: 'kb-3',
@@ -97,7 +97,7 @@ export const INITIAL_KNOWLEDGE_BASE = [
     mediaUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
     image: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80',
-    isHidden: true
+    isHidden: false
   },
   {
     id: 'kb-4',
@@ -110,7 +110,7 @@ export const INITIAL_KNOWLEDGE_BASE = [
     mediaUrl: 'https://images.unsplash.com/photo-1508873696983-2df5057c0256?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
     image: 'https://images.unsplash.com/photo-1508873696983-2df5057c0256?auto=format&fit=crop&w=800&q=80',
-    isHidden: true
+    isHidden: false
   },
 
   // --- FARMING TECHNIQUES (Ilocos Norte) ---
@@ -125,7 +125,7 @@ export const INITIAL_KNOWLEDGE_BASE = [
     mediaUrl: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
     image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80',
-    isHidden: true
+    isHidden: false
   },
   {
     id: 'kb-6',
@@ -138,7 +138,7 @@ export const INITIAL_KNOWLEDGE_BASE = [
     mediaUrl: 'https://images.unsplash.com/photo-1530507629858-e4977d30e9e0?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
     image: 'https://images.unsplash.com/photo-1530507629858-e4977d30e9e0?auto=format&fit=crop&w=800&q=80',
-    isHidden: true
+    isHidden: false
   },
   {
     id: 'kb-7',
@@ -151,7 +151,7 @@ export const INITIAL_KNOWLEDGE_BASE = [
     mediaUrl: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
     image: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?auto=format&fit=crop&w=800&q=80',
-    isHidden: true
+    isHidden: false
   },
   {
     id: 'kb-8',
@@ -164,7 +164,7 @@ export const INITIAL_KNOWLEDGE_BASE = [
     mediaUrl: 'https://images.unsplash.com/photo-1546445317-29f4545f9d52?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
     image: 'https://images.unsplash.com/photo-1546445317-29f4545f9d52?auto=format&fit=crop&w=800&q=80',
-    isHidden: true
+    isHidden: false
   },
 
   // --- CROPS (Ilocos Norte) ---
@@ -179,7 +179,7 @@ export const INITIAL_KNOWLEDGE_BASE = [
     mediaUrl: 'https://images.unsplash.com/photo-1540148426945-6cf22a6b2383?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
     image: 'https://images.unsplash.com/photo-1540148426945-6cf22a6b2383?auto=format&fit=crop&w=800&q=80',
-    isHidden: true
+    isHidden: false
   },
   {
     id: 'kb-10',
@@ -192,7 +192,7 @@ export const INITIAL_KNOWLEDGE_BASE = [
     mediaUrl: 'https://images.unsplash.com/photo-1536657464919-892534f60d6e?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
     image: 'https://images.unsplash.com/photo-1536657464919-892534f60d6e?auto=format&fit=crop&w=800&q=80',
-    isHidden: true
+    isHidden: false
   },
   {
     id: 'kb-11',
@@ -205,7 +205,7 @@ export const INITIAL_KNOWLEDGE_BASE = [
     mediaUrl: 'https://images.unsplash.com/photo-1618512496248-a07fe83aa8cf?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
     image: 'https://images.unsplash.com/photo-1618512496248-a07fe83aa8cf?auto=format&fit=crop&w=800&q=80',
-    isHidden: true
+    isHidden: false
   },
   {
     id: 'kb-12',
@@ -218,7 +218,7 @@ export const INITIAL_KNOWLEDGE_BASE = [
     mediaUrl: 'https://images.unsplash.com/photo-1527325678964-549216416a27?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
     image: 'https://images.unsplash.com/photo-1527325678964-549216416a27?auto=format&fit=crop&w=800&q=80',
-    isHidden: true
+    isHidden: false
   },
 
   // --- LIVESTOCK (Ilocos Norte) ---
@@ -233,7 +233,7 @@ export const INITIAL_KNOWLEDGE_BASE = [
     mediaUrl: 'https://images.unsplash.com/photo-1524024973431-2ad916746881?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
     image: 'https://images.unsplash.com/photo-1524024973431-2ad916746881?auto=format&fit=crop&w=800&q=80',
-    isHidden: true
+    isHidden: false
   },
   {
     id: 'kb-14',
@@ -246,7 +246,7 @@ export const INITIAL_KNOWLEDGE_BASE = [
     mediaUrl: 'https://images.unsplash.com/photo-1570042225831-d98fa7577f1e?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
     image: 'https://images.unsplash.com/photo-1570042225831-d98fa7577f1e?auto=format&fit=crop&w=800&q=80',
-    isHidden: true
+    isHidden: false
   },
   {
     id: 'kb-15',
@@ -259,7 +259,7 @@ export const INITIAL_KNOWLEDGE_BASE = [
     mediaUrl: 'https://images.unsplash.com/photo-1560807707-8cc77767d783?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
     image: 'https://images.unsplash.com/photo-1560807707-8cc77767d783?auto=format&fit=crop&w=800&q=80',
-    isHidden: true
+    isHidden: false
   },
   {
     id: 'kb-16',
@@ -272,7 +272,7 @@ export const INITIAL_KNOWLEDGE_BASE = [
     mediaUrl: 'https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
     image: 'https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?auto=format&fit=crop&w=800&q=80',
-    isHidden: true
+    isHidden: false
   }
 ];
 
@@ -305,7 +305,7 @@ export const INITIAL_INVENTORY = [
     notes: 'Low ground pressure tires suitable for wet rice paddies and dry garlic tilling.',
     mediaUrl: 'https://images.unsplash.com/photo-1530507629858-e4977d30e9e0?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
-    isHidden: true
+    isHidden: false
   },
   {
     id: 'inv-102',
@@ -322,7 +322,7 @@ export const INITIAL_INVENTORY = [
     notes: 'Includes 400W solar panel array, 24V DC pump, and Venturi fertilizer injector.',
     mediaUrl: 'https://images.unsplash.com/photo-1563514227147-6d2ff665a6a0?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
-    isHidden: true
+    isHidden: false
   },
   {
     id: 'inv-103',
@@ -339,7 +339,7 @@ export const INITIAL_INVENTORY = [
     notes: 'Capacity: 500kg garlic/onion bulbs per curing run.',
     mediaUrl: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
-    isHidden: true
+    isHidden: false
   },
   {
     id: 'inv-104',
@@ -356,7 +356,7 @@ export const INITIAL_INVENTORY = [
     notes: 'High-grade disease-free seed stock prepared for November planting.',
     mediaUrl: 'https://images.unsplash.com/photo-1540148426945-6cf22a6b2383?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
-    isHidden: true
+    isHidden: false
   }
 ];
 
@@ -375,7 +375,7 @@ export const INITIAL_AUDIT_LOGS = [
     verificationStatus: 'Logged & Verified',
     mediaUrl: 'https://images.unsplash.com/photo-1540148426945-6cf22a6b2383?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
-    isHidden: true
+    isHidden: false
   },
   {
     id: 'log-102',
@@ -391,7 +391,7 @@ export const INITIAL_AUDIT_LOGS = [
     verificationStatus: 'Logged & Verified',
     mediaUrl: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
-    isHidden: true
+    isHidden: false
   },
   {
     id: 'log-103',
@@ -407,7 +407,7 @@ export const INITIAL_AUDIT_LOGS = [
     verificationStatus: 'Logged & Verified',
     mediaUrl: 'https://images.unsplash.com/photo-1524024973431-2ad916746881?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
-    isHidden: true
+    isHidden: false
   },
   {
     id: 'log-104',
@@ -423,7 +423,7 @@ export const INITIAL_AUDIT_LOGS = [
     verificationStatus: 'Logged & Verified',
     mediaUrl: 'https://images.unsplash.com/photo-1527325678964-549216416a27?auto=format&fit=crop&w=800&q=80',
     mediaType: 'image',
-    isHidden: true
+    isHidden: false
   }
 ];
 
@@ -447,7 +447,7 @@ export const INITIAL_FINANCIALS = {
       loggedBy: 'Nythan Bagasani',
       mediaUrl: 'https://images.unsplash.com/photo-1540148426945-6cf22a6b2383?auto=format&fit=crop&w=800&q=80',
       mediaType: 'image',
-      isHidden: true
+      isHidden: false
     },
     {
       id: 'fin-102',
@@ -459,7 +459,7 @@ export const INITIAL_FINANCIALS = {
       loggedBy: 'Nathaniel Bonifacio',
       mediaUrl: 'https://images.unsplash.com/photo-1563514227147-6d2ff665a6a0?auto=format&fit=crop&w=800&q=80',
       mediaType: 'image',
-      isHidden: true
+      isHidden: false
     },
     {
       id: 'fin-103',
@@ -471,7 +471,7 @@ export const INITIAL_FINANCIALS = {
       loggedBy: 'Nythan Bagasani',
       mediaUrl: 'https://images.unsplash.com/photo-1560807707-8cc77767d783?auto=format&fit=crop&w=800&q=80',
       mediaType: 'image',
-      isHidden: true
+      isHidden: false
     },
     {
       id: 'fin-104',
@@ -483,7 +483,7 @@ export const INITIAL_FINANCIALS = {
       loggedBy: 'JBenedict Alberto',
       mediaUrl: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80',
       mediaType: 'image',
-      isHidden: true
+      isHidden: false
     }
   ]
 };
@@ -502,7 +502,7 @@ export const INITIAL_MONITORING_SENSORS = {
       lastUpdated: '2026-07-22',
       mediaUrl: 'https://images.unsplash.com/photo-1536657464919-892534f60d6e?auto=format&fit=crop&w=800&q=80',
       mediaType: 'image',
-      isHidden: true
+      isHidden: false
     },
     {
       id: 'mon-102',
@@ -516,7 +516,7 @@ export const INITIAL_MONITORING_SENSORS = {
       lastUpdated: '2026-07-22',
       mediaUrl: 'https://images.unsplash.com/photo-1540148426945-6cf22a6b2383?auto=format&fit=crop&w=800&q=80',
       mediaType: 'image',
-      isHidden: true
+      isHidden: false
     },
     {
       id: 'mon-103',
@@ -530,7 +530,7 @@ export const INITIAL_MONITORING_SENSORS = {
       lastUpdated: '2026-07-21',
       mediaUrl: 'https://images.unsplash.com/photo-1527325678964-549216416a27?auto=format&fit=crop&w=800&q=80',
       mediaType: 'image',
-      isHidden: true
+      isHidden: false
     },
     {
       id: 'mon-104',
@@ -544,7 +544,7 @@ export const INITIAL_MONITORING_SENSORS = {
       lastUpdated: '2026-07-20',
       mediaUrl: 'https://images.unsplash.com/photo-1618512496248-a07fe83aa8cf?auto=format&fit=crop&w=800&q=80',
       mediaType: 'image',
-      isHidden: true
+      isHidden: false
     }
   ],
   equipment: [
@@ -558,7 +558,7 @@ export const INITIAL_MONITORING_SENSORS = {
       lastUpdated: '2026-07-22',
       mediaUrl: 'https://images.unsplash.com/photo-1563514227147-6d2ff665a6a0?auto=format&fit=crop&w=800&q=80',
       mediaType: 'image',
-      isHidden: true
+      isHidden: false
     },
     {
       id: 'mon-202',
@@ -570,7 +570,7 @@ export const INITIAL_MONITORING_SENSORS = {
       lastUpdated: '2026-07-21',
       mediaUrl: 'https://images.unsplash.com/photo-1530507629858-e4977d30e9e0?auto=format&fit=crop&w=800&q=80',
       mediaType: 'image',
-      isHidden: true
+      isHidden: false
     },
     {
       id: 'mon-203',
@@ -582,7 +582,7 @@ export const INITIAL_MONITORING_SENSORS = {
       lastUpdated: '2026-07-22',
       mediaUrl: 'https://images.unsplash.com/photo-1509391365360-2e959784a276?auto=format&fit=crop&w=800&q=80',
       mediaType: 'image',
-      isHidden: true
+      isHidden: false
     }
   ],
   livestock: [
@@ -596,7 +596,7 @@ export const INITIAL_MONITORING_SENSORS = {
       lastUpdated: '2026-07-22',
       mediaUrl: 'https://images.unsplash.com/photo-1524024973431-2ad916746881?auto=format&fit=crop&w=800&q=80',
       mediaType: 'image',
-      isHidden: true
+      isHidden: false
     },
     {
       id: 'mon-302',
@@ -608,7 +608,7 @@ export const INITIAL_MONITORING_SENSORS = {
       lastUpdated: '2026-07-22',
       mediaUrl: 'https://images.unsplash.com/photo-1560807707-8cc77767d783?auto=format&fit=crop&w=800&q=80',
       mediaType: 'image',
-      isHidden: true
+      isHidden: false
     },
     {
       id: 'mon-303',
@@ -620,7 +620,7 @@ export const INITIAL_MONITORING_SENSORS = {
       lastUpdated: '2026-07-20',
       mediaUrl: 'https://images.unsplash.com/photo-1570042225831-d98fa7577f1e?auto=format&fit=crop&w=800&q=80',
       mediaType: 'image',
-      isHidden: true
+      isHidden: false
     },
     {
       id: 'mon-304',
@@ -632,7 +632,7 @@ export const INITIAL_MONITORING_SENSORS = {
       lastUpdated: '2026-07-21',
       mediaUrl: 'https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?auto=format&fit=crop&w=800&q=80',
       mediaType: 'image',
-      isHidden: true
+      isHidden: false
     }
   ]
 };

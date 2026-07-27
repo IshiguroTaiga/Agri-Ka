@@ -166,13 +166,15 @@ export default function App() {
     };
   }, []);
 
-  // Real-time EventSource Listener (SSE) & Polling Fallback (2.5s fast interval)
+  // Real-time EventSource Listener (SSE) & Polling Fallback (15s interval)
   useEffect(() => {
-    let eventSource;
+    let eventSource = null;
+    let reconnectTimeout = null;
 
     const connectSSE = () => {
       try {
         const apiBase = import.meta.env.VITE_API_URL || '/api';
+        if (eventSource) eventSource.close();
         eventSource = new EventSource(`${apiBase}/events`);
 
         eventSource.onopen = () => {
@@ -180,26 +182,38 @@ export default function App() {
         };
 
         eventSource.onmessage = (e) => {
-          console.log('[Real-Time Sync] SSE message received:', e.data);
-          fetchSqlData();
+          try {
+            const parsed = JSON.parse(e.data);
+            if (parsed.type && parsed.type !== 'connected') {
+              fetchSqlData();
+            }
+          } catch (err) {
+            fetchSqlData();
+          }
         };
 
-        eventSource.onerror = (err) => {
+        eventSource.onerror = () => {
           if (eventSource) eventSource.close();
-          setTimeout(connectSSE, 3000);
+          if (!reconnectTimeout) {
+            reconnectTimeout = setTimeout(() => {
+              reconnectTimeout = null;
+              connectSSE();
+            }, 10000);
+          }
         };
       } catch (err) {}
     };
 
     connectSSE();
 
-    // Fast 2.5s background sync for multi-user real-time reflection
+    // 15s background sync for multi-user real-time reflection
     const pollInterval = setInterval(() => {
       fetchSqlData();
-    }, 2500);
+    }, 15000);
 
     return () => {
       if (eventSource) eventSource.close();
+      if (reconnectTimeout) clearTimeout(reconnectTimeout);
       clearInterval(pollInterval);
     };
   }, []);
